@@ -153,7 +153,7 @@ const Listing = () => {
                 justifyContent: "center",
               }}
             >
-              <p>No Spots found at the moment...</p>
+              <p>No spots found for the location. Please <a href="/find-parking-spot">click</a> here to find more...</p>
             </div>
           )}
         </>

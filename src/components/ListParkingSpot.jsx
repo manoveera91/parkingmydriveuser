@@ -79,16 +79,16 @@ const ListParkingSpot = () => {
     }
   }, [searchState.from, searchState.to, searchState.destination, searchState]);
 
-  useEffect(() => {
-    if (searchState.from !== "" && searchState.to !== "") {
-      getApi();
-    }
-    if (state) {
-      console.log(state);
-      setParkingListData(state);
-    }
-    getParkingList();
-  }, []);
+  // useEffect(() => {
+  //   if (searchState.from !== "" && searchState.to !== "") {
+  //     getApi();
+  //   }
+  //   if (state) {
+  //     console.log(state);
+  //     setParkingListData(state);
+  //   }
+  //   getParkingList();
+  // }, []);
 
   const getParkingList = async () => {
     setParkingListData([]);
@@ -153,7 +153,7 @@ const ListParkingSpot = () => {
                 justifyContent: "center",
               }}
             >
-              <p>No Spots found at the moment...</p>
+              <p>No spots found for the location. Please <a href="/find-parking-spot">click</a> here to find more...</p>
             </div>
           )}
         </>

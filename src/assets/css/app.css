@@ -1944,8 +1944,8 @@ clear: both;
 	
 }
 
-.listingLeft{width: 95%;
-    display: block;
+.listingLeft{
+    display: flex;
     overflow: hidden;
  
     border-radius: 10px;
@@ -2024,3 +2024,126 @@ clear: both;
 .viewdetailsRight {
 	padding:15px 0 0;
 }
+
+
+
+.activeMarker {
+    background-color: black;
+    padding: 4px 8px;
+    border-radius: 28px;
+    font-weight: 700;
+    box-shadow: 0 0 0 1px var(--linaria-theme_palette-bobo) inset;
+    border: 1px solid #212529;
+    transition: transform .2s; /* Animation */
+}
+
+.nonActiveMarker {
+    background-color: white;
+    padding: 4px 8px;
+    border-radius: 28px;
+    font-weight: 700;
+    box-shadow: 0 0 0 1px var(--linaria-theme_palette-bobo) inset;
+    border: 1px solid #212529;
+    transition: transform .2s; /* Animation */
+}
+
+.setHover {
+    background-color: white;
+    padding: 4px 8px;
+    border-radius: 28px;
+    font-weight: 700;
+    border: 1px solid #212529;
+    transform: scale(1.1); 
+}
+
+.gm-style .gm-style-iw-c {
+    max-width: 240px !important;
+    min-width: 240px !important;
+    padding: 0px !important;
+    top: 160px !important;
+
+    button {
+        top: 10px !important;
+        right: 10px !important;
+        border-radius: 50px !important;
+        opacity: 0.9 !important;
+        transition: transform .2s; 
+        box-shadow: 0 0 0 1px transparent, 0 0 0 4px transparent, var(--linaria-theme_elevation-tertiary-box)
+    }
+
+    button:hover {
+        background-color: white !important;
+        opacity: 1.6 !important;
+        transform: scale(1.1);
+    }
+}
+
+.card-image {
+    min-width: 240px !important;
+    max-width: 240px !important;
+}
+
+.gm-style-iw-d {
+    overflow: hidden !important;
+}
+
+.info-card {
+    padding: 14px;
+    .name {
+        font-size: 20px;
+        font-weight: 700;
+    }
+    .price {
+        font-size: 16px;
+        font-weight: 500;
+        color: #3333339e;
+        margin: 10px 0;
+    }
+}
+
+.gm-ui-hover-effect {
+    background-color: white !important;
+}
+
+.gm-style .gm-style-iw-tc {
+    display: none;
+}
+
+.fa-google {
+    background: conic-gradient(from -45deg, #ea4335 110deg, #4285f4 90deg 180deg, #34a853 180deg 270deg, #fbbc05 270deg) 73% 55%/150% 150% no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .social-btn {
+    display: contents !important;
+    div {
+      display: block !important;
+    }
+  }
+  
+  .fa-facebook-f:before, .fa-facebook:before {
+    content: "\f082" !important;
+    color: #3a559f;
+  }
+  
+  .fa-apple:before {
+    color: #030104;
+  }
+  
+  .loader {
+    display: flex;
+    justify-content: center;
+    /* width: 84%; */
+  }
+  
+  .form-disabled {
+    opacity: 0.5; /* Example styling for disabled appearance */
+    pointer-events: none; /* Prevent interaction with the div */
+  }
+
+  .height-img {
+    height: 100% !important;
+  }

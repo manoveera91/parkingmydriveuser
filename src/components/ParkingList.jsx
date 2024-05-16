@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { GoogleMap, InfoWindow, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { calculateMapParams, filterNearbyPoints } from "../utils/MapUtils";
 
 const ParkingList = ({ data }) => {
@@ -12,6 +12,7 @@ const ParkingList = ({ data }) => {
   const [nearByPlace, setNearByPlace] = useState();
   const [pointValue, setPointValue] = useState([]);
   const [filteredData, setFilteredData] = useState();
+  const [hoveredMarker, setHoveredMarker] = useState(null);
 
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
@@ -27,6 +28,10 @@ const ParkingList = ({ data }) => {
           lat: parseFloat(item.latitude),
           lng: parseFloat(item.longitude),
         },
+        price: `$${+item.vehicle_fees}`,
+        photo: item.photos &&
+        item.photos.length > 0 &&
+        item.photos[0].photo_path && (item?.photos[0].photo_path)
       }));
       setMarkers(newMarkers);
     }
@@ -44,6 +49,10 @@ const ParkingList = ({ data }) => {
     }
   }, []);
 
+  const handleMarkerHover = (id) => {
+    setHoveredMarker(id);
+  };
+
   const handleClick = (id) => {
     navigate(`/review-booking/${id}`);
     // navigate(`/booking-detail/${id}`);
@@ -54,6 +63,7 @@ const ParkingList = ({ data }) => {
       return;
     }
     setActiveMarker(marker);
+    setHoveredMarker(null);
   };
 
   const onLoad = React.useCallback((map) => {
@@ -128,7 +138,7 @@ const ParkingList = ({ data }) => {
                           src={`${
                             import.meta.env.VITE_APP_BASE_URL
                           }/storage/${item.photos[0].photo_path.slice(6)}`}
-                          className="img-fluid"
+                          className="img-fluid height-img"
                         />
                       )}
                     {/* <img src={ListImg} className="img-fluid" alt="List" /> */}
@@ -165,18 +175,54 @@ const ParkingList = ({ data }) => {
                   onUnmount={onUnmount}
                   mapContainerStyle={{ width: "60vw", height: "100vh" }}
                 >
-                  {markers?.map(({ id, name, position }) => (
+                  {markers?.map((marker) => (
                     <Marker
-                      key={id}
-                      title={name}
-                      position={position}
-                      onClick={() => handleActiveMarker(id)}
+                      key={marker.id}
+                      position={marker.position}
+                      onClick={() => handleActiveMarker(marker.id)}
+                      onMouseOver={() => handleMarkerHover(marker.id)}
+                      zIndex={(marker.id === activeMarker || marker.id === hoveredMarker ) ? 1 : 0}
+                      label={{
+                        className: (marker.id === activeMarker) ? 'activeMarker' : (marker.id === hoveredMarker) ? 'setHover' : 'nonActiveMarker',
+                        text: marker.price,
+                        color: marker.id === activeMarker ? 'white' : 'black',
+                        fontSize: '12px'
+                      }}
+                      icon={{
+                        url: 'none',
+                        scaledSize: new window.google.maps.Size(40, 40),
+                      }}
                     >
-                      {/* {activeMarker === id && (
-                      <InfoWindow onCloseClick={() => setActiveMarker(id)}>
-                        <div>{name}</div>
+                        {marker.id === activeMarker && (
+                      <InfoWindow position={marker.position} onCloseClick={() => { setActiveMarker(null) }}>
+                        <div>
+                          {/* <button>X</button> */}
+                          {marker && marker.photo ?
+                            (<img
+                              src={`${import.meta.env.VITE_APP_BASE_URL
+                                }/storage/${marker.photo.slice(6)}`}
+                              className="card-image"
+                            />) : (<img
+                              src={`${noPreview}`}
+                              className="card-image"
+                            />)}
+                          <div className="info-card">
+                            <div>
+                              <div className="name">{marker.name}</div>
+                              <div className="price">{marker.price || "10"}</div>
+                              <div className="mapButtons">
+                                <button
+                                  className="btn btn-primary"
+                                  onClick={() => handleClick(marker.id)}
+                                >
+                                  Book Now
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </InfoWindow>
-                    )} */}
+                    )}
                     </Marker>
                   ))}
                 </GoogleMap>
@@ -186,14 +232,14 @@ const ParkingList = ({ data }) => {
         </div>
       ) : (
         <div
-          style={{
-            width: "100%",
-            textAlign: " center",
-            height: " 300px",
-            fontSize: "29px",
-          }}
-        >
-          No Parking Spots found
+        style={{
+          height: "200px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+          <p>No spots found for the location. Please <a href="/find-parking-spot">click</a> here to find more...</p>
         </div>
       )}
     </div>
