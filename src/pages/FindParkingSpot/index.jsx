@@ -22,13 +22,31 @@ const FindParkingSpot = () => {
     from: new Date(),
     to: new Date(),
 
-    selectedFromTime: "12:00 AM",
-    selectedToTime: "01:00 AM",
+    selectedFromTime: "",
+    selectedToTime: "",
     event: "",
     destination: "",
     vehicle_type: "",
   });
   console.log("form data", formData);
+
+  const roundOffStartTime = () => {
+    const now = new Date();
+    const minutes = now.getMinutes();
+
+    if (minutes > 0) {
+      now.setHours(now.getHours() + 1);
+      now.setMinutes(0);
+    } else {
+      now.setMinutes(0);
+    }
+
+    const formattedTime = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    setFormData(prevState => ({
+      ...prevState,
+      selectedFromTime: handleFromTimeChange(formattedTime)
+    }));
+  }
 
   const [error, setError] = useState({
     from: "",
@@ -59,6 +77,7 @@ const FindParkingSpot = () => {
   };
 
   useEffect(() => {
+    roundOffStartTime();
     console.log("Api value", formData.destination);
     console.log("Api value1", formData.destination);
     console.log("placeId api", formData.destination?.value?.place_id);
