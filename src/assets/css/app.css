@@ -1964,6 +1964,7 @@ clear: both;
 }
 
 .loginasIcon a{ display: block; font-size:16px; 
+    cursor: pointer;
     border: 1px solid #ddd;
     border-radius: 5px;
     text-align: center;
@@ -2146,4 +2147,4 @@ clear: both;
 
   .height-img {
     height: 100% !important;
-  }
+}

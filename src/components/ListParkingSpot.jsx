@@ -73,7 +73,7 @@ const ListParkingSpot = () => {
         from: new Date(),
         to: new Date(),
         event: "",
-        destination: "OMR",
+        destination: "",
         vehicle_type: "",
       }));
     }

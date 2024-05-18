@@ -23,6 +23,7 @@ const ParkingList = ({ data }) => {
     if (filteredData && filteredData.length > 0) {
       const newMarkers = filteredData.map((item, index) => ({
         id: index + 1,
+        placeId: item.id,
         name: item.slot_name,
         position: {
           lat: parseFloat(item.latitude),
@@ -213,7 +214,7 @@ const ParkingList = ({ data }) => {
                               <div className="mapButtons">
                                 <button
                                   className="btn btn-primary"
-                                  onClick={() => handleClick(marker.id)}
+                                  onClick={() => handleClick(marker.placeId)}
                                 >
                                   Book Now
                                 </button>

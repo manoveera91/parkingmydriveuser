@@ -6,9 +6,11 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import AxiosClient from "../../axios/AxiosClient";
 import DatePicker from "react-datepicker";
-
+import GoogleLogin from "../googleLogin/index"
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import React from "react";
-
+import { useDispatch } from "react-redux";
+import { saveUser } from "../../redux/userSlice";
 import {
   calculateTotalDuration,
   convertToMySQLDate,
@@ -30,6 +32,7 @@ import Register from "../Register";
 import Loader from "../../components/Loader";
 
 const ReviewBooking = () => {
+  const dispatch = useDispatch();
   const searchRedux = useSelector((state) => {
     return state.search.value;
   });
@@ -103,6 +106,57 @@ const ReviewBooking = () => {
     id: "google-map-script",
     googleMapsApiKey: import.meta.env.VITE_APP_GOOGLE_API_KEY,
   });
+
+  const handleGoogleResponse = (response) => {
+    // Perform actions with the received data
+    console.log('Received data from GoogleLogin:', response);
+    handleSubmit(response.name, response.email, response.sub)
+  };
+
+  const handleSubmit = async (name, email, pass) => {
+    try {
+      setLoading(true); // Set loading state to true when API call sta
+      await AxiosClient.get("/sanctum/csrf-cookie");
+      const { data, error, status } =
+        await AxiosClient.post("/api/auth/sociallogin", {
+          name: name,
+          email: email,
+          password: pass,
+          mobile: '9999999999'
+        });
+      console.log("errior response", error);
+      if (error) {
+        setError(error);
+        return;
+      }
+      if (status === 201) {
+        localStorage.setItem("ACCESS_TOKEN", data.accessToken);
+        dispatch(
+          saveUser({
+            data: {
+              isLoggedIn: true,
+              username: data.user.name,
+              email: data.user.email,
+              token: data.accessToken,
+            },
+          })
+        );
+      }
+      if (status !== 201) {
+        console.log("message", message);
+        setError(message);
+      }
+    } catch (error) {
+      console.log("Error:", error);
+      if (error.response && error.response.status === 409) {
+        setError("Email already exists. Please use a different email.");
+      } else {
+        setError("Internal server error. Please try again later.");
+      }
+    } finally {
+      setLoading(false); // Set loading state to false when API call completes
+    }
+  };
 
   const onLoad = React.useCallback(
     function callback(map) {
@@ -463,7 +517,9 @@ const ReviewBooking = () => {
                         </form>
                       </div>
                     </div>
-
+                    {loading ? (
+                      <div className="loader"> <Loader /></div>
+                    ) : ''}
                     {!userRedux.isLoggedIn && (
                       <div
                         id="form-credit-card"
@@ -471,12 +527,16 @@ const ReviewBooking = () => {
                       >
                         <h4 className="">Let's gets started</h4>
                         {/* <form> */}
+                        <div className={loading ? 'form-disabled' : ''}>
                         <div className="row">
                           <div className="col-lg-4 mb-2">
-                            <div className="loginasIcon">
-                              <a href="">
-                                <img src={Google} />
-                              </a>
+                            <div className="loginasIcon" onClick={() => {
+                                    setLogginClicked(false);
+                                    setSignUpClicked(false);
+                                  }}>
+                            <GoogleOAuthProvider clientId={import.meta.env.VITE_APP_GG_APP_ID}>
+                                <GoogleLogin onGoogleResponse={handleGoogleResponse} />
+                              </GoogleOAuthProvider>
                             </div>
                           </div>
 
@@ -536,6 +596,7 @@ const ReviewBooking = () => {
                               </div>
                             </>
                           )}
+                        </div>
                         </div>
                       </div>
                     )}

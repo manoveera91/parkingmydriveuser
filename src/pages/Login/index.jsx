@@ -4,7 +4,7 @@ import Loader from "../../components/Loader";
 import { useDispatch } from "react-redux";
 import { saveUser } from "../../redux/userSlice";
 import { NavLink } from "react-router-dom";
-
+import { toast } from "react-toastify";
 const Login = () => {
   // const auth = useAuthContext();
   // const navigate = useNavigate();
@@ -40,7 +40,7 @@ const Login = () => {
         password,
       });
       localStorage.setItem("ACCESS_TOKEN", data.accessToken);
-
+      toast.success(data.message);
       if (status === 200) {
         dispatch(
           saveUser({

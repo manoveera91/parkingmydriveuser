@@ -25,7 +25,7 @@ const FindParkingSpot = () => {
     selectedFromTime: "",
     selectedToTime: "",
     event: "",
-    destination: "",
+    destination: JSON.parse(localStorage.getItem('addressComponent')),
     vehicle_type: "",
   });
   console.log("form data", formData);
@@ -47,6 +47,10 @@ const FindParkingSpot = () => {
       selectedFromTime: handleFromTimeChange(formattedTime)
     }));
   }
+
+  useEffect(() => {
+      setApiValue(formData.destination);
+  }, [formData.destination]);
 
   const [error, setError] = useState({
     from: "",
@@ -93,6 +97,9 @@ const FindParkingSpot = () => {
           setLngValue(lng);
 
           // setApiValue("longitude", lng);
+        } else {
+          setLatValue(localStorage.getItem('currentLat'));
+          setLngValue(localStorage.getItem('currentLong'));
         }
       }
     };
@@ -258,11 +265,9 @@ const FindParkingSpot = () => {
                         <GooglePlacesAutocomplete
                           apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
                           selectProps={{
+                            value: apiValue,
+                            placeholder: 'Address',
                             apiValue: formData.destination,
-
-                            // onChange: (e) => onChange("destination", e.target.value),
-
-                            // onChange: (value) => onChange("destination", value),
                             onChange: (value) => {
                               setApiValue(value);
                               onChange("destination", value);
