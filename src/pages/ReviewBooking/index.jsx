@@ -258,9 +258,9 @@ const ReviewBooking = () => {
       if (status === 201) {
         console.log("response booking data", data);
         setBookingId(data?.booking.id);
-        setLoading(false);
-        setBookNow(true);
-
+        // setLoading(false);
+        // setBookNow(true);
+        handlePayment(data?.booking.id)
         // navigate("/booking-history");
       } else {
         // Handle error response
@@ -377,16 +377,16 @@ const ReviewBooking = () => {
     console.log(searchParams.get("token"));
   }
 
-  const handlePayment = async () => {
-    setLoading(true);
+  const handlePayment = async (bookId) => {
+    // setLoading(true);
     try {
       const response = await AxiosClient.post("/api/payment-booking", {
-        booking_id: bookingId, // Assuming selectedBooking contains the booking ID
+        booking_id: bookId, // Assuming selectedBooking contains the booking ID
       });
       console.log("payment booking response", response.data);
       if (response.data.link) {
-        setLoading(false);
         location.href = response.data.link;
+        setLoading(false);
       }
       // Handle success response
     } catch (error) {

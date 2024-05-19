@@ -10,6 +10,7 @@ import BreadCrumbs from "../../components/BreadCrumbs";
 import { useDispatch } from "react-redux";
 import { calculateTotalDuration, formatDateYear } from "../../utils/DateTime";
 import DatePicker from "react-datepicker";
+import { useSelector } from "react-redux";
 import {
   GoogleMap,
   InfoWindow,
@@ -29,6 +30,11 @@ const BookingDetail = () => {
   const [activeMarker, setActiveMarker] = useState(null);
   const [map, setMap] = useState(null); // To access map instance
   const [markers, setMarkers] = useState([]);
+
+
+  const searchRedux = useSelector((state) => {
+    return state.search.value;
+  });
 
   const toggleExpansion = () => {
     setIsExpanded(!isExpanded);
@@ -75,6 +81,15 @@ const BookingDetail = () => {
   };
 
   useEffect(() => {
+    if (searchRedux.selectedFromTime != '' && searchRedux.selectedToTime != '') {
+      setFormData({
+        ...formData,
+        from: searchRedux.from,
+        to: searchRedux.to,
+        selectedFromTime: searchRedux.selectedFromTime,
+        selectedToTime: searchRedux.selectedToTime
+      })
+    }
     if (params) {
       const getApi = async () => {
         try {
@@ -125,6 +140,7 @@ const BookingDetail = () => {
   //   return inputs;
   // };
   const handleSubmit = (e) => {
+    let isoFormData;
     e.preventDefault();
     // Convert the from and to dates to ISO string format
 
@@ -141,10 +157,13 @@ const BookingDetail = () => {
       });
     }
 
-    const isoFormData = {
+    const fromDate = typeof formData.from;
+    const toDate = typeof formData.to;
+
+    isoFormData = {
       ...formData, // Spread the remaining data in formData
-      from: formData.from.toISOString(), // Override from with ISO string format
-      to: formData.to.toISOString(), // Override to with ISO string format
+      from: fromDate != 'string' ? formData.from.toISOString() : formData.from, // Override from with ISO string format
+      to: toDate != 'string' ? formData.to.toISOString() : formData.to, // Override to with ISO string format
     };
 
     console.log("hc formData", isoFormData);

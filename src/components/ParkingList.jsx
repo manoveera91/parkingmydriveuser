@@ -55,8 +55,8 @@ const ParkingList = ({ data }) => {
   };
 
   const handleClick = (id) => {
-    navigate(`/review-booking/${id}`);
-    // navigate(`/booking-detail/${id}`);
+    // navigate(`/review-booking/${id}`);
+    navigate(`/booking-detail/${id}`);
   };
 
   const handleActiveMarker = (marker) => {
