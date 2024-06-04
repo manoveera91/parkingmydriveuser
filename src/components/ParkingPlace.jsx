@@ -74,7 +74,7 @@ const ParkingPlace = () => {
               {parkingListData
                 .filter((data) => data.status === 0)
                 .map((item) => (
-                  <div key={item.id}>
+                  <div key={item.id} className="slider-slot-padding">
                     <div className="newsItemBlock card homecard">
                       <div className="listImage">
                         {/* <span>{item.available_slots} Available</span> */}

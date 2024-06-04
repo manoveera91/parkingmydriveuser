@@ -10,6 +10,19 @@ import FindParkingSpot from "./pages/FindParkingSpot/index.jsx";
 import ListParkingSpot from "./components/ListParkingSpot.jsx";
 import ForgetResetPage from "./pages/ForgetResetPage/index.jsx";
 import PasswordReset from "./pages/PasswordReset/index.jsx";
+import UserLogin from './pages/UserLogin/index.jsx'
+import Dashboard from "./pages/dashboard/index.jsx";
+import ParkingSpots from "./pages/parkingSpots/index.jsx";
+import AddParkingSpots from "./components/AddParkingSpots.jsx";
+import MyBookingSlots from "./pages/MyBookingSlots/index.jsx";
+import ViewParkingSpots from "./components/ViewParkingSpots.jsx";
+import EditParkingSpot from "./components/EditParkingSpot.jsx";
+import Earnings from "./pages/Earnings/index.jsx";
+import Profile from "./pages/profile/index.jsx";
+import ViewBookingSlot from "./components/ViewBookingSlot.jsx";
+import EditBookingSlot from "./components/EditBookingSlot.jsx";
+import ChangePassword from "./pages/ChangePassword/index.jsx";
+import ViewCancelledBooking from "./components/ViewCancelledBooking.jsx";
 
 const AuthenticatedRoute = ({ children }) => {
   // const auth = useAuthContext();
@@ -35,6 +48,14 @@ const UnAuthenticatedRoute = ({ children }) => {
 const PublicRoutes = ({ children }) => {
   return (
     <Routes>
+      <Route
+        path="/"
+        element={
+          <UnAuthenticatedRoute>
+            <HomePage />
+          </UnAuthenticatedRoute>
+        }
+      ></Route>
       {/* <Route
         path="/login"
         element={
@@ -63,10 +84,26 @@ const AppRoutes = () => {
         element={
           <AuthenticatedRoute>
             <HomePage />
+            {/* <Dashboard /> */}
           </AuthenticatedRoute>
         }
       />
-
+      <Route
+        path="/userlogin"
+        element={
+          <UnAuthenticatedRoute>
+            <UserLogin />
+          </UnAuthenticatedRoute>
+        }
+      />
+      <Route
+        path="/dashboard"
+        element={
+          <AuthenticatedRoute>
+            <Dashboard />
+          </AuthenticatedRoute>
+        }
+      />
       <Route
         path="/listing"
         element={
@@ -108,10 +145,98 @@ const AppRoutes = () => {
         }
       />
       <Route
+        path="/my-parking-spot"
+        element={
+          <AuthenticatedRoute>
+            <ParkingSpots />
+          </AuthenticatedRoute>
+        }
+      />
+      <Route
+        path="/earnings"
+        element={
+          <AuthenticatedRoute>
+            <Earnings />
+          </AuthenticatedRoute>
+        }
+      />
+      <Route
+        path="/view-cancelled-booking"
+        element={
+          <AuthenticatedRoute>
+            <ViewCancelledBooking />
+          </AuthenticatedRoute>
+        }
+      />
+      <Route
+        path="/add-parking-spots"
+        element={
+          <AuthenticatedRoute>
+            <AddParkingSpots />
+          </AuthenticatedRoute>
+        }
+      />
+      <Route
+        path="/my-slot-bookings"
+        element={
+          <AuthenticatedRoute>
+            <MyBookingSlots />
+          </AuthenticatedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <AuthenticatedRoute>
+            <Profile />
+          </AuthenticatedRoute>
+        }
+      />
+      <Route
+        path="/change-password"
+        element={
+          <AuthenticatedRoute>
+            <ChangePassword />
+          </AuthenticatedRoute>
+        }
+      />
+      <Route
+        path="/view-parking-spot"
+        element={
+          <AuthenticatedRoute>
+            <ViewParkingSpots />
+          </AuthenticatedRoute>
+        }
+      />
+      <Route
+        path="/edit-parking-spot"
+        element={
+          <AuthenticatedRoute>
+            <EditParkingSpot />
+          </AuthenticatedRoute>
+        }
+      />
+      <Route
+        path="/view-booking-slot"
+        element={
+          <AuthenticatedRoute>
+            <ViewBookingSlot />
+          </AuthenticatedRoute>
+        }
+      />
+      <Route
         path="/list-parking-spot"
         element={
           <AuthenticatedRoute>
             <ListParkingSpot />
+          </AuthenticatedRoute>
+        }
+      />
+      <Route
+        path="/edit-booking-slot"
+        element={
+          <AuthenticatedRoute>
+            <EditBookingSlot />
           </AuthenticatedRoute>
         }
       />

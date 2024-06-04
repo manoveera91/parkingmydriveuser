@@ -11,6 +11,8 @@ import { useDispatch } from "react-redux";
 import { calculateTotalDuration, formatDateYear } from "../../utils/DateTime";
 import DatePicker from "react-datepicker";
 import { useSelector } from "react-redux";
+import { combineDateTime } from "../../utils/DateTime";
+import { toast } from "react-toastify";
 import {
   GoogleMap,
   InfoWindow,
@@ -24,6 +26,7 @@ const BookingDetail = () => {
   const params = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [btnLoading, setbtnLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [item, setItem] = useState(null);
   const [totalHours, setTotalHours] = useState(null);
@@ -139,7 +142,8 @@ const BookingDetail = () => {
   //   }
   //   return inputs;
   // };
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
+    setbtnLoading(true);
     let isoFormData;
     e.preventDefault();
     // Convert the from and to dates to ISO string format
@@ -167,7 +171,6 @@ const BookingDetail = () => {
     };
 
     console.log("hc formData", isoFormData);
-
     dispatch(
       searchSubmit({
         data: {
@@ -175,8 +178,43 @@ const BookingDetail = () => {
         },
       })
     );
+    if (params) {
+      try {
+        await AxiosClient.get("/sanctum/csrf-cookie");
+        const { data, status } = await AxiosClient.post(
+          "/api/booking-validate",
+          {
+            from_datetime: combineDateTime(
+              isoFormData.from,
+              isoFormData.selectedFromTime
+            ),
+            to_datetime: combineDateTime(
+              isoFormData.to,
+              isoFormData.selectedToTime
+            ),
+            id: params.id
+          }
+        );
+        if (status === 200) {
+          console.log(data);
+          if (data === 0) {
+            navigate(`/review-booking/${item.id}`);
+          } else {
+            setError({
+              ...error,
+              to: "Spot already booked for selected date time slot",
+            });
+            // toast.error("Spot already booked for the date time");
+          }
+        } else {}
+      } catch (error) {
+        setError("Internal Server Error");
+        console.error("Error fetching data from the API:", error);
+      } finally {
+        setbtnLoading(false);
+      }
+    }
 
-    navigate(`/review-booking/${item.id}`);
   };
   // const handleSubmit = (e) => {
   //   e.preventDefault();
@@ -398,11 +436,10 @@ const BookingDetail = () => {
                                   item.photos.length > 0 &&
                                   item.photos[0].photo_path && (
                                     <img
-                                      src={`${
-                                        import.meta.env.VITE_APP_BASE_URL
-                                      }/storage/${item.photos[0].photo_path.slice(
-                                        6
-                                      )}`}
+                                      src={`${import.meta.env.VITE_APP_BASE_URL
+                                        }/storage/${item.photos[0].photo_path.slice(
+                                          6
+                                        )}`}
                                       className="img-fluid"
                                     />
                                   )}
@@ -492,9 +529,9 @@ const BookingDetail = () => {
                                   customInput={<CustomDatePickerInput />}
                                   onChange={handleFromDateChange}
 
-                                  // onChange={(date) =>
-                                  //   setFormData({ ...formData, from: date })
-                                  // }
+                                // onChange={(date) =>
+                                //   setFormData({ ...formData, from: date })
+                                // }
                                 />
                                 <select
                                   className="form-control style-2"
@@ -502,9 +539,9 @@ const BookingDetail = () => {
                                   onChange={(e) =>
                                     handleFromTimeChange(e.target.value)
                                   }
-                                  // onChange={(e) =>
-                                  //   onChange("selectedFromTime", e.target.value)
-                                  // }
+                                // onChange={(e) =>
+                                //   onChange("selectedFromTime", e.target.value)
+                                // }
                                 >
                                   {/* Populate options for time selection */}
                                   {Array.from({ length: 24 }, (_, index) => {
@@ -535,11 +572,11 @@ const BookingDetail = () => {
                                   customInput={<CustomDatePickerInput />}
                                   onChange={handleToDateChange}
 
-                                  // onChange={(date) => {
-                                  //   setFormData({ ...formData, to: date });
-                                  //   setError({ ...error, to: "" });
-                                  // }}
-                                  // onChange={(date) => onChange("to", date)}
+                                // onChange={(date) => {
+                                //   setFormData({ ...formData, to: date });
+                                //   setError({ ...error, to: "" });
+                                // }}
+                                // onChange={(date) => onChange("to", date)}
                                 />
                                 <select
                                   className="form-control style-2"
@@ -635,7 +672,13 @@ const BookingDetail = () => {
 
                           <div className="detailContinueButton mt-4">
                             <button type="submit" className="btn btn-primary  ">
-                              Book Now
+                            {btnLoading ? (
+                                <div className="loader">
+                                  <Loader />
+                                </div>
+                              ) : (
+                                "Book Now"
+                              )}
                             </button>
                           </div>
                         </div>
@@ -687,7 +730,7 @@ const BookingDetail = () => {
               <div className="container">
                 <div className="card">
                   <div className="row">
-                    <h2>No data found!!</h2>
+                    {/* <h2>No data found!!</h2> */}
                   </div>
                 </div>
               </div>

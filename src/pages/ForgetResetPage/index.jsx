@@ -18,6 +18,7 @@ const ForgetResetPage = () => {
     console.log("Forget password email sent to:", email);
     setLoading(true);
     try {
+      await AxiosClient.get("/sanctum/csrf-cookie");
       const response = await AxiosClient.post("api/auth/forgot-password", {
         email,
       });
@@ -29,7 +30,7 @@ const ForgetResetPage = () => {
       } else {
         setLoading(false);
         toast.success("Please check your mail");
-        // navigate("/");
+        navigate("/userlogin");
         setEmail("");
         console.log("forget password response", response.data);
       }

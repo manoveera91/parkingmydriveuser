@@ -38,7 +38,6 @@ const formatDateTime = (date, time) => {
 const combineDateTime = (dateString, timeString) => {
     // Parse the date
     const date = new Date(dateString);
-
     // Parse the time
     const [time, period] = timeString.split(" ");
     let [hours, minutes] = time.split(":").map(Number);
@@ -54,10 +53,19 @@ const combineDateTime = (dateString, timeString) => {
     date.setHours(hours, minutes);
 
     // Format the combined date and time as "YYYY-MM-DD HH:mm:ss"
-    const formattedDateTime = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`;
+    // const formattedDateTime = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`;
+    const formattedDateTime = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)} ${('0' + date.getHours()).slice(-2)}:00:00`;
 
     return formattedDateTime;
 };
+
+function getDateOnly(datetimeString) {
+    // Split the datetime string by space
+    const parts = datetimeString.split(" ");
+    // Take the first part, which represents the date
+    const dateOnly = parts[0];
+    return dateOnly;
+}
 
 const formattedDateTime = (dateTimeString) => {
     const date = new Date(dateTimeString);
@@ -76,8 +84,8 @@ const formatDate = (dateString) => {
     const day = ('0' + date.getDate()).slice(-2);
     const month = ('0' + (date.getMonth() + 1)).slice(-2);
     const year = date.getFullYear().toString().slice(-2);
-
-    return `${day}-${month}-${year}`;
+    // return `${day}-${month}-${year}`;
+    return `${year}-${month}-${day}`;
 };
 
 const formatDateYear = (dateString) => {
@@ -280,6 +288,38 @@ function separateDateAndTime(datetimeString) {
 
     return { date: dateString, time: timeString };
 }
+const getYesterdayFormatted = () => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const year = yesterday.getFullYear();
+    const month = yesterday.getMonth() + 1; // Month is zero-based, so add 1 to get the actual month
+    const day = yesterday.getDate();
+
+    const formattedDate = `${year}-${month < 10 ? "0" + month : month}-${day < 10 ? "0" + day : day
+        }`;
+    return formattedDate;
+}
+
+// Function to check if a date is yesterday
+const isYesterday = (date) => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return (
+        date.getDate() === yesterday.getDate() &&
+        date.getMonth() === yesterday.getMonth() &&
+        date.getFullYear() === yesterday.getFullYear()
+    );
+};
+
+const isToday = (date) => {
+    const today = new Date();
+    return (
+        date.getDate() === today.getDate() &&
+        date.getMonth() === today.getMonth() &&
+        date.getFullYear() === today.getFullYear()
+    );
+};
 
 export {
     calculateTotalDuration,
@@ -287,6 +327,6 @@ export {
     formatDate,
     formatDateTime,
     combineDateTime,
-    formattedDateTime, separateDateAndTime,
+    formattedDateTime, separateDateAndTime, getDateOnly, getYesterdayFormatted, isYesterday, isToday,
     formatDateYear, convertToMySQLDatetime, convertToMySQLDate
 }

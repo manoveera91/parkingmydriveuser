@@ -5,7 +5,9 @@ const initialState = {
         isLoggedIn: false,
         username: '',
         email: '',
-        token: ''
+        token: '',
+        mobile: '',
+        spotLength: 0 
     },
 }
 

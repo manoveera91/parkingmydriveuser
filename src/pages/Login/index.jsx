@@ -5,9 +5,16 @@ import { useDispatch } from "react-redux";
 import { saveUser } from "../../redux/userSlice";
 import { NavLink } from "react-router-dom";
 import { toast } from "react-toastify";
-const Login = () => {
+import OwnerAxiosClient from "../../axios/OwnerAxiosClient";
+import { useNavigate } from "react-router-dom";
+
+const Login = ({ onDataChange }) => {
+  const sendDataToParent = (val) => {
+    onDataChange(val);
+};
   // const auth = useAuthContext();
   // const navigate = useNavigate();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -21,7 +28,61 @@ const Login = () => {
   });
   const [errors, setErrors] = useState("");
 
-  const handleLoginSubmit = async (e) => {
+  const handleSubmit = async (e) => {
+    debugger
+    sendDataToParent(true);
+    await ownerHandleSubmit(e);
+  }
+
+  const GoogleLogin = ({ onGoogleResponse }) => {
+    setLoading(true);
+  }
+
+  const ownerHandleSubmit = async (e) => {
+    debugger
+    e.preventDefault();
+    setErrors("");
+    setError({
+      username: "",
+      password: "",
+      form: "",
+    });
+    try {
+      setLoading(true);
+      await OwnerAxiosClient.get("/sanctum/csrf-cookie");
+      const { email, password } = formData;
+      const { data, status } = await OwnerAxiosClient.post("api/auth/adminlogin", {
+        email,
+        password,
+      });
+      if (status === 200) {
+        localStorage.setItem('spotLength', data.spot_length);
+        localStorage.setItem("isAuthenticated", true);
+        localStorage.setItem("ACCESS_OWNER_TOKEN", data.access_token);
+        handleLoginSubmit(e, data.spot_length);
+      }
+      if (status !== 200) {
+        sendDataToParent(false);
+        localStorage.clear();
+        navigate("/userlogin")
+        setError({
+          ...error,
+          form: "OOPS! Check your username and password",
+        });
+        setLoading(false);
+        // setErrors("OOPS! Check your username and password");
+      }
+    } catch (err) {
+      sendDataToParent(false);
+      localStorage.clear();
+      console.error("catching error", err);
+      setErrors("Internal server Error");
+      setLoading(false);
+    } finally {
+    }
+  };
+
+  const handleLoginSubmit = async (e, spotLength) => {
     e.preventDefault();
     setErrors("");
     setError({
@@ -32,16 +93,28 @@ const Login = () => {
     try {
       setError({ ...error, vehicle_number: "" });
 
-      setLoading(true);
+      // setLoading(true);
       await AxiosClient.get("/sanctum/csrf-cookie");
       const { email, password } = formData;
       const { data, status } = await AxiosClient.post("api/auth/login", {
         email,
         password,
       });
-      localStorage.setItem("ACCESS_TOKEN", data.accessToken);
-      toast.success(data.message);
+
       if (status === 200) {
+        sendDataToParent(false);
+        toast.success("Login successfully!");
+        localStorage.setItem("ACCESS_TOKEN", data.accessToken);
+        const redirect = localStorage.getItem('redirect');
+        const bookingLogin = localStorage.getItem('bookingLogin');
+        debugger
+        if (redirect) {
+            navigate(redirect);
+            localStorage.removeItem('redirect');
+        } else if (!bookingLogin) {
+          navigate("/dashboard");
+        } 
+        localStorage.removeItem('bookingLogin');
         dispatch(
           saveUser({
             data: {
@@ -49,20 +122,27 @@ const Login = () => {
               username: data.user.name,
               email: data.user.email,
               token: data.accessToken,
+              mobile: data.user.mobile,
+              spotLength: spotLength
             },
           })
         );
         // navigate("/booking-history");
-      }
-      if (status !== 200) {
+      } else {
+        sendDataToParent(false);
+        localStorage.clear();
         setError({
           ...error,
           form: "OOPS! Check your username and password",
         });
+        setLoading(false);
       }
     } catch (err) {
+      sendDataToParent(false);
+      localStorage.clear();
       console.error("catching error", err);
       setErrors("OOPS! Check your username and password");
+      setLoading(false);
     } finally {
       setLoading(false); // Set loading state to false when API call completes
     }
@@ -77,7 +157,7 @@ const Login = () => {
 
   return (
     <div className="card">
-      <form onSubmit={handleLoginSubmit}>
+      <form onSubmit={handleSubmit}>
         <div className="registerBg">
           <div className="row">
             <div className="">

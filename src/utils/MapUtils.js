@@ -22,10 +22,10 @@ function calculateMapParams(parkingSpots) {
         const lat = parseFloat(spot.latitude);
         const lng = parseFloat(spot.longitude);
         if (!isNaN(lat) && !isNaN(lng)) {
-            minLat = Math.min(minLat, lat);
-            maxLat = Math.max(maxLat, lat);
-            minLng = Math.min(minLng, lng);
-            maxLng = Math.max(maxLng, lng);
+            minLat = lat - 2;
+            maxLat = lat + 2;
+            minLng = lng - 2;
+            maxLng = lng + 2;
         }
     });
 
@@ -34,7 +34,6 @@ function calculateMapParams(parkingSpots) {
         lat: (minLat + maxLat) / 2,
         lng: (minLng + maxLng) / 2,
     };
-
     // Calculate zoom level based on the distance between minimum and maximum latitudes
     // You can adjust this formula as needed
     const zoom = Math.floor(

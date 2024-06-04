@@ -9,7 +9,7 @@ function Footer() {
                 <div className="row">
                     <div className="col-lg-3 col-md-6">
                         <img src={FooterLogo} className="footerlogo img-fluid" />
-                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500.</p>
+                        <p>Park in My Driveway is the innovative idea that's revolutionizing the way people park.</p>
 
 
                     </div>
@@ -27,8 +27,9 @@ function Footer() {
                     <div className="col-lg-3 col-md-6">
                         <h3>Connect with us</h3>
                         <address>
-                            <p>L: Florida, South America</p>
-                            <p>T: +91 9876543210</p>
+                            <p>L: 10707 Hastings Lane <br />
+                                Austin, Texas 78750</p>
+                            <p>T: +(798) 546 528</p>
                             <p>E: <a href="mailto:info@parkinmydriveway.com">info@parkinmydriveway.com</a></p>
                         </address>
 

@@ -47,7 +47,8 @@ const ListParkingSpot = () => {
         }
       );
       if (status === 200) {
-        setParkingListData(data);
+        const spotsArray = Object.values(data);
+        setParkingListData(spotsArray);
       }
     } catch (error) {
       setError("Internal Server Error");

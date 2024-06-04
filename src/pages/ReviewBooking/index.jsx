@@ -1,6 +1,4 @@
 import BreadCrumbs from "../../components/BreadCrumbs";
-import Google from "../../assets/images/google.png";
-import Fb from "../../assets/images/fb.png";
 import Apple from "../../assets/images/apple.png";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -11,6 +9,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import React from "react";
 import { useDispatch } from "react-redux";
 import { saveUser } from "../../redux/userSlice";
+import FacebookLogin from 'react-facebook-login';
 import {
   calculateTotalDuration,
   convertToMySQLDate,
@@ -30,8 +29,12 @@ import {
 import Login from "../Login";
 import Register from "../Register";
 import Loader from "../../components/Loader";
-
+import OwnerAxiosClient from "../../axios/OwnerAxiosClient";
+import { toast } from "react-toastify";
 const ReviewBooking = () => {
+  const handleDataChange = (newData) => {
+    setLoading(newData);
+};
   const dispatch = useDispatch();
   const searchRedux = useSelector((state) => {
     return state.search.value;
@@ -72,6 +75,7 @@ const ReviewBooking = () => {
   });
 
   useEffect(() => {
+    localStorage.setItem('bookingLogin', true);
     setFormData({
       from: searchRedux?.from,
       to: searchRedux?.to,
@@ -107,16 +111,56 @@ const ReviewBooking = () => {
     googleMapsApiKey: import.meta.env.VITE_APP_GOOGLE_API_KEY,
   });
 
+  const responseFacebook = (response) => {
+    console.log(response);
+    onwerSubmit(response.name, response.email, response.id);
+  }
+
   const handleGoogleResponse = (response) => {
     // Perform actions with the received data
     console.log('Received data from GoogleLogin:', response);
-    handleSubmit(response.name, response.email, response.sub)
+    onwerSubmit(response.name, response.email, response.sub);
   };
 
-  const handleSubmit = async (name, email, pass) => {
+  const onwerSubmit = async (name, email, pass) => {
     try {
       setLoading(true); // Set loading state to true when API call sta
-      await AxiosClient.get("/sanctum/csrf-cookie");
+      await OwnerAxiosClient.get("/sanctum/csrf-cookie");
+      const { data, error, status } =
+        await OwnerAxiosClient.post("/api/auth/ownersociallogin", {
+          username: name,
+          email: email,
+          password: pass
+        });
+      if (error) {
+        localStorage.clear();
+        setError(error);
+        setLoading(false);
+        return;
+      }
+      if (status === 201 || status === 200) {
+        localStorage.setItem('spotLength', data.spot_length);
+        localStorage.setItem("isAuthenticated", true);
+        localStorage.setItem("ACCESS_OWNER_TOKEN", data.access_token);
+        userSubmit(name, email, pass, data.spot_length);
+      } else {
+        localStorage.clear();
+        setError(error);
+        return;
+      }
+    } catch (error) {
+      setLoading(false);
+      console.log("Error:", error);
+      if (error.response && error.response.status === 409) {
+        setError("Email already exists. Please use a different email.");
+      } else {
+        setError("Internal server error. Please try again later.");
+      }
+    }
+  };
+
+  const userSubmit = async (name, email, pass, spotLength) => {
+    try {
       const { data, error, status } =
         await AxiosClient.post("/api/auth/sociallogin", {
           name: name,
@@ -127,9 +171,11 @@ const ReviewBooking = () => {
       console.log("errior response", error);
       if (error) {
         setError(error);
+        setLoading(false);
         return;
       }
-      if (status === 201) {
+      if (status === 201 || status === 200) {
+        toast.success("Login successfully!");
         localStorage.setItem("ACCESS_TOKEN", data.accessToken);
         dispatch(
           saveUser({
@@ -138,15 +184,14 @@ const ReviewBooking = () => {
               username: data.user.name,
               email: data.user.email,
               token: data.accessToken,
+              mobile: data.user.mobile,
+              spotLength: spotLength ? spotLength : 0
             },
           })
         );
       }
-      if (status !== 201) {
-        console.log("message", message);
-        setError(message);
-      }
     } catch (error) {
+      setLoading(false);
       console.log("Error:", error);
       if (error.response && error.response.status === 409) {
         setError("Email already exists. Please use a different email.");
@@ -156,7 +201,7 @@ const ReviewBooking = () => {
     } finally {
       setLoading(false); // Set loading state to false when API call completes
     }
-  };
+  }
 
   const onLoad = React.useCallback(
     function callback(map) {
@@ -250,7 +295,6 @@ const ReviewBooking = () => {
     setLoading(true);
     try {
       setError({ ...error, vehicle_number: "" });
-
       const { data, status } = await AxiosClient.post(
         "/api/add-booking",
         bookingData
@@ -528,75 +572,85 @@ const ReviewBooking = () => {
                         <h4 className="">Let's gets started</h4>
                         {/* <form> */}
                         <div className={loading ? 'form-disabled' : ''}>
-                        <div className="row">
-                          <div className="col-lg-4 mb-2">
-                            <div className="loginasIcon" onClick={() => {
-                                    setLogginClicked(false);
-                                    setSignUpClicked(false);
-                                  }}>
-                            <GoogleOAuthProvider clientId={import.meta.env.VITE_APP_GG_APP_ID}>
-                                <GoogleLogin onGoogleResponse={handleGoogleResponse} />
-                              </GoogleOAuthProvider>
+                          <div className="row">
+                            <div className="col-lg-4 mb-2">
+                              <div className="loginasIcon" onClick={() => {
+                                setLogginClicked(false);
+                                setSignUpClicked(false);
+                              }}>
+                                <GoogleOAuthProvider clientId={import.meta.env.VITE_APP_GG_APP_ID}>
+                                  <GoogleLogin onGoogleResponse={handleGoogleResponse} />
+                                </GoogleOAuthProvider>
+                              </div>
                             </div>
-                          </div>
 
-                          <div className="col-lg-4 mb-2">
-                            <div className="loginasIcon">
-                              <a href="">
-                                <img src={Fb} />
-                              </a>
-                            </div>
-                          </div>
-
-                          <div className="col-lg-4 mb-2">
-                            <div className="loginasIcon">
-                              <a href="">
-                                <img src={Apple} />
-                              </a>
-                            </div>
-                          </div>
-
-                          {!logginClicked && (
-                            <div className="col-xl-12 col-md-12 mb-2">
-                              <div className="loginasIcon cursor-pointer">
-                                <a
-                                  onClick={() => {
-                                    setLogginClicked(true);
-                                    setSignUpClicked(false);
-                                  }}
-                                >
-                                  Login with email
+                            <div className="col-lg-4 mb-2">
+                              <div className="facebookloginicon loginasIcon">
+                                <a onClick={() => {
+                                  setLogginClicked(false);
+                                  setSignUpClicked(false);
+                                }}>
+                                  <FacebookLogin
+                                    appId={import.meta.env.VITE_APP_FB_APP_ID}
+                                    fields="name,email,id"
+                                    textButton=""
+                                    icon="fa-facebook"
+                                    tag={'div'}
+                                    cssClass="facebooklogin"
+                                    callback={responseFacebook} />
                                 </a>
                               </div>
                             </div>
-                          )}
 
-                          {!userRedux.isLoggedIn && logginClicked && <Login />}
-                          {!userRedux.isLoggedIn && signUpClicked && (
-                            <Register />
-                          )}
-                          {!signUpClicked && (
-                            <>
-                              <div className="col-xl-12 col-md-12 mb-2">
-                                <div className="loginasIcon text-center">
-                                  or
-                                </div>
+                            <div className="col-lg-4 mb-2">
+                              <div className="loginasIcon form-disabled">
+                                <a>
+                                  <img src={Apple} />
+                                </a>
                               </div>
+                            </div>
+
+                            {!logginClicked && (
                               <div className="col-xl-12 col-md-12 mb-2">
-                                <div className="loginasIcon">
+                                <div className="loginasIcon cursor-pointer">
                                   <a
                                     onClick={() => {
-                                      setSignUpClicked(true);
-                                      setLogginClicked(false);
+                                      setLogginClicked(true);
+                                      setSignUpClicked(false);
                                     }}
                                   >
-                                    Signup with email
+                                    Login with email
                                   </a>
                                 </div>
                               </div>
-                            </>
-                          )}
-                        </div>
+                            )}
+
+                            {!userRedux.isLoggedIn && logginClicked && <Login onDataChange={handleDataChange} />}
+                            {!userRedux.isLoggedIn && signUpClicked && (
+                              <Register onDataChange={handleDataChange} />
+                            )}
+                            {!signUpClicked && (
+                              <>
+                                <div className="col-xl-12 col-md-12 mb-2">
+                                  <div className="loginasIcon text-center">
+                                    or
+                                  </div>
+                                </div>
+                                <div className="col-xl-12 col-md-12 mb-2">
+                                  <div className="loginasIcon">
+                                    <a
+                                      onClick={() => {
+                                        setSignUpClicked(true);
+                                        setLogginClicked(false);
+                                      }}
+                                    >
+                                      Signup with email
+                                    </a>
+                                  </div>
+                                </div>
+                              </>
+                            )}
+                          </div>
                         </div>
                       </div>
                     )}
@@ -617,9 +671,8 @@ const ReviewBooking = () => {
 
                     <div
                       id="form-credit-card"
-                      className={`bg-lighter rounded  mb-3 ${
-                        userRedux.isLoggedIn ? "opacity-100" : "opacity-25"
-                      } `}
+                      className={`bg-lighter rounded  mb-3 ${userRedux.isLoggedIn ? "opacity-100" : "opacity-25"
+                        } `}
                     >
                       <h4 className="">Vehicle Information</h4>
 

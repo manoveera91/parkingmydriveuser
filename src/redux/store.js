@@ -1,11 +1,13 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import storage from 'redux-persist/lib/storage'
 
+import transferReducer from './dataTransfer'
 import SearchReducer from './searchSlice'
 import UserReducer from './userSlice'
 import { persistReducer } from 'redux-persist';
 
 const reducers = combineReducers({
+    data: transferReducer,
     search: SearchReducer,
     user: UserReducer
 });

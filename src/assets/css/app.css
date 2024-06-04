@@ -2082,6 +2082,8 @@ clear: both;
 .card-image {
     min-width: 240px !important;
     max-width: 240px !important;
+    min-height: 180px;
+    max-height: 180px;
 }
 
 .gm-style-iw-d {
@@ -2148,3 +2150,164 @@ clear: both;
   .height-img {
     height: 100% !important;
 }
+
+.no-spot-found {
+    text-align: center;
+    color: red !important;
+    padding-bottom: 10px;
+}
+
+.facebookloginicon a {
+    padding: 0 !important;
+    font-size: 27.5px;
+  }
+
+  #react-tiny-popover-container {
+    /* left: -18px !important; */
+  }
+
+  .popover-arrow {
+    left: 194px !important;
+  }
+
+  .common-menu-item {
+    padding: 7px;
+    width: 220px;
+    box-shadow: 0px 0px 14px 0px rgba(227,227,227,0.9);
+    background: white;
+    transition: all 0.1s cubic-bezier(0.16, 1, 0.5, 1);
+    border-radius: 10px;
+  }
+
+  .carousel-inner {
+    z-index: 0 !important;
+  }
+
+  .profile-icon-btn {
+    background: transparent;
+    border: none;
+  }
+
+  .login_btn {
+    padding: 8px 16px;
+    color: #7b7b7b;
+    font-size: 16px;
+  }
+
+  .login_btn:hover {
+    color: #f97802 !important;
+  } 
+
+  .carousel-control-next {
+    z-index: -1;
+  }
+
+.gap-8 {
+    gap: 8px;
+  }
+
+  .parking-slot-header {
+    padding: 10px 10% 12px;
+    background: #e1700c;
+    display: flex;
+    gap: 30px;
+    justify-content: end;
+    .parking-slots {
+        padding: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+    .active {
+        background: white;
+        position: relative;
+        color: #e1700c !important;
+        .sub-head-arrow {
+          display: flex !important;
+        }
+    }
+    .non-active {
+        color: white;
+        .sub-head-arrow {
+          display: none;
+        }
+    }
+  }
+
+  .menu-btn-group-new {
+    position: relative;
+    .common-menu-item {
+        z-index: 999;
+        position: absolute;
+        top: 57px;
+        left: -100px;
+    }
+  }
+
+  .text-align-left {
+    text-align: left;
+  }
+
+  .font-weight-bold {
+    font-weight: 700;
+  }
+
+  .sub-head-arrow {
+    position: absolute;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-left: -6px;
+
+    .sub-label-arrow {
+      /* border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent; 
+      border-right:10px solid white; */
+      border-top: 10px solid white;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      float: left;
+      height: 1px;
+      margin-top: 3px;
+    }
+  }
+
+  ::ng-deep.slick-track {
+    display: flex !important;
+    gap: 12px !important;
+  }
+
+  .change-pass-form {
+    padding: 21px;
+    background-color: rgba(67, 89, 113, .05) !important;
+  }
+
+  
+  .c-fade-in {
+    transition: filter 1s ease-in-out;
+    filter: brightness(1); /* Reduce brightness */
+  }
+
+  .c-fade-out {
+    transition: filter 1s ease-in-out;
+    filter: brightness(0.5); /* Reduce brightness */
+  }
+
+  .carousel-control-next {
+    z-index: 0 !important;
+  }
+
+  .slider-slot-padding {
+    padding: 0 15px !important;
+  }
+
+  .react-datepicker-wrapper {
+    width: 100% !important;
+  } 
+ 
+  .finddetailsRightOuter {
+    .gm-style-iw-chr {
+      position: absolute;
+      right: 2px;
+    }
+  }

@@ -8,16 +8,19 @@ import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import { getLatLong } from "../../utils/MapUtils";
-
+import AxiosClient from "../../axios/AxiosClient";
+import { combineDateTime } from "../../utils/DateTime";
+import { filterNearbyPoints } from "../../utils/MapUtils";
+import Loader from "../../components/Loader";
 const FindParkingSpot = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const [nearByPlaceLength, setNearByPlaceLength] = useState(false);
   const [formIsValid, setFormIsValid] = useState(false);
   const [apiValue, setApiValue] = useState(null);
   const [latValue, setLatValue] = useState("");
   const [lngValue, setLngValue] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     from: new Date(),
     to: new Date(),
@@ -107,6 +110,8 @@ const FindParkingSpot = () => {
   }, [formData.destination]);
 
   const onSubmit = async (e) => {
+    setLoading(true);
+    setNearByPlaceLength(false);
     e.preventDefault();
     console.log("formData", formData);
     // Validate form fields
@@ -172,11 +177,53 @@ const FindParkingSpot = () => {
     localStorage.setItem("latitude", latValue);
     localStorage.setItem("longitude", lngValue);
 
-    navigate("/list-parking-spot");
+    await AxiosClient.get("/sanctum/csrf-cookie");
+    const { data, status } = await AxiosClient.post(
+      "/api/getParkingSpotsByDateTime",
+      {
+        from_datetime: combineDateTime(
+          formData.from,
+          formData.selectedFromTime
+        ),
+        to_datetime: combineDateTime(
+          formData.to,
+          formData.selectedToTime
+        ),
+      }
+    );
+    if (status === 200) {
+      const storedLatitude = localStorage.getItem("latitude");
+      const storedLongitude = localStorage.getItem("longitude");
+          // Example usage
+    const baseLat = storedLatitude; // Base latitude
+    const baseLng = storedLongitude; // Base longitude
+    const maxDistance = 10; // Maximum distance in km
+    const spotsArray = Object.values(data);
+    const newPoints = spotsArray.map((item, index) => ({
+      latitude: parseFloat(item.latitude),
+      longitude: parseFloat(item.longitude),
+    }));
+
+    // Filter nearby points
+    const nearbyPoints = filterNearbyPoints(
+      baseLat,
+      baseLng,
+      newPoints,
+      maxDistance
+    );
+   
+    console.log("vc Nearby Points:", nearbyPoints);
+    if (nearbyPoints.length > 0) {
+      navigate("/list-parking-spot");
+    } else {
+      setNearByPlaceLength(true);
+    }
+    }
 
     // if (location.pathname === "/listing") {
     //   handleApi();
     // }
+    setLoading(false);
   };
 
   const CustomDatePickerInput = ({ value, onClick }) => (
@@ -252,6 +299,9 @@ const FindParkingSpot = () => {
       <Header />
       <BreadCrumbs title={"Find A Parking Spot"} />
       <div className="loginOuter">
+      { nearByPlaceLength && (
+      <p className="no-spot-found">No spots found for the location. Please find more...</p>
+        )}
         <div className="container">
           <form onSubmit={onSubmit}>
             <div className="row">
@@ -380,7 +430,14 @@ const FindParkingSpot = () => {
                       <div className="col-md-12">
                         <div className="d-grid">
                           <button type="submit" className="btn btn-primary">
-                            Find Parking Slots
+                          {loading ? (
+                                <div className="loader">
+                                  <Loader />
+                                </div>
+                              ) : (
+                                "Find Parking Slots"
+                              )}
+                            
                           </button>
                         </div>
                       </div>

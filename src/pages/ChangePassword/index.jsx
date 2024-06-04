@@ -6,47 +6,55 @@ import BreadCrumbs from "../../components/BreadCrumbs";
 import Header from "../../components/Header";
 import Loader from "../../components/Loader";
 import { toast } from "react-toastify";
-import OwnerAxiosClient from "../../axios/OwnerAxiosClient";
-const PasswordReset = () => {
+import { useSelector } from "react-redux";
+const ChangePassword = () => {
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const { token } = useParams();
-  const email = new URLSearchParams(window.location.search).get("email");
+  let email = '';
   const navigate = useNavigate();
+
+  const userRedux = useSelector((state) => {
+    email = state.user.value.email; 
+    return state.user.value;
+});
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Check if password and confirmation password match
-    if (password !== confirmPassword) {
-      toast.error("Password and confirmation password do not match.");
+    if (newPassword !== confirmNewPassword) {
+      toast.error("New password and confirmation new password does not match.");
       return;
     }
 
     setLoading(true);
     try {
       await AxiosClient.get("/sanctum/csrf-cookie");
-      const response = await AxiosClient.post("api/auth/password/reset", {
-        email,
-        token,
-        password,
-        password_confirmation: confirmPassword,
+      const response = await AxiosClient.post("api/auth/change-password", {
+        email: email,
+        password: password,
+        newPassword: newPassword,
+        password_confirmation: confirmNewPassword,
       });
       console.log("response", response);
       if (response.message) {
         toast.error(response.message);
         setLoading(false);
         setPassword("");
-        setConfirmPassword("");
+        setNewPassword("");
+        setConfirmNewPassword("");
       }
       if (response && response.data) {
         setLoading(false);
         if (response.status === 200) {
           setPassword("");
-          setConfirmPassword("");
-          toast.success("Password successfully reset!");
-          navigate("/userlogin")
+          setNewPassword("");
+          setConfirmNewPassword("");
+          toast.success("Password successfully updated!");
+        //   navigate("/userlogin")
 
           // navigate("/");
         } else {
@@ -58,7 +66,8 @@ const PasswordReset = () => {
     } catch (error) {
       setLoading(false);
       setPassword("");
-      setConfirmPassword("");
+      setNewPassword("");
+      setConfirmNewPassword("");
       console.log("error", error);
 
       if (error.response && error.response.status === 400) {
@@ -80,23 +89,23 @@ const PasswordReset = () => {
     }
 
     // Handle form submission here, e.g., send a POST request to the backend
-    console.log("Form submitted:", { email, password, confirmPassword, token });
+    // console.log("Form submitted:", { email, password, confirmPassword, token });
   };
 
   return (
     <>
       <Header />
-      <BreadCrumbs title="Reset Password" />
+      <BreadCrumbs title="Change Password" />
       <div className="loginOuter">
-        <div className="row">
+        <div className="row justify-content-center">
           {/* <div className="col-lg-4"></div> */}
-          <div className="offset-lg-4 col-lg-5 col-md-12">
+          <div className="col-lg-5 col-md-12">
             <div className="card mb-4">
               <div className="registerBg">
-                <h4 className="">Reset Password</h4>
-                <form onSubmit={handleSubmit}>
+                {/* <h4 className="">Change Password</h4> */}
+                <form className="change-pass-form" onSubmit={handleSubmit}>
                   <div className="row">
-                    <div className="col-12 mb-4">
+                    {/* <div className="col-12 mb-4">
                       <label className="form-label" htmlFor="billings-card-num">
                         Email
                       </label>
@@ -111,11 +120,11 @@ const PasswordReset = () => {
                           readOnly
                         />
                       </div>
-                    </div>
+                    </div> */}
 
                     <div className="col-12 mb-4">
                       <label className="form-label" htmlFor="billings-card-num">
-                        Password
+                        Old Password
                       </label>
                       <div className="input-group input-group-merge">
                         <input
@@ -133,6 +142,24 @@ const PasswordReset = () => {
 
                     <div className="col-12 mb-4">
                       <label className="form-label" htmlFor="billings-card-num">
+                        New Password
+                      </label>
+                      <div className="input-group input-group-merge">
+                        <input
+                          type="password"
+                          required
+                          name="newPassword"
+                          // placeholder="Enter your email"
+                          id="billings-card-num"
+                          className="form-control billing-card-mask"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="col-12 mb-4">
+                      <label className="form-label" htmlFor="billings-card-num">
                         Confirm Password
                       </label>
                       <div className="input-group input-group-merge">
@@ -143,14 +170,14 @@ const PasswordReset = () => {
                           // placeholder="Enter your email"
                           id="billings-card-num"
                           className="form-control billing-card-mask"
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          value={confirmNewPassword}
+                          onChange={(e) => setConfirmNewPassword(e.target.value)}
                         />
                       </div>
                     </div>
                     <input type="hidden" name="token" value={token} />
 
-                    <div className="col-md-12">
+                    <div className="col-md-3">
                       <div className="d-grid">
                         <button type="submit" className="btn btn-primary">
                           {/* <span className="me-2"> */}{" "}
@@ -159,7 +186,7 @@ const PasswordReset = () => {
                               <Loader />
                             </div>
                           ) : (
-                            "Submit"
+                            "Update"
                           )}
                           {/* </span> */}
                         </button>
@@ -206,4 +233,4 @@ const PasswordReset = () => {
   );
 };
 
-export default PasswordReset;
+export default ChangePassword;

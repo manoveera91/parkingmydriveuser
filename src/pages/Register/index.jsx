@@ -1,16 +1,22 @@
 import { useState } from "react";
 
 import AxiosClient from "../../axios/AxiosClient";
-
+import { toast } from "react-toastify";
 import Loader from "../../components/Loader";
 import { useDispatch } from "react-redux";
 import { saveUser } from "../../redux/userSlice";
+import OwnerAxiosClient from "../../axios/OwnerAxiosClient";
+import { useNavigate } from "react-router-dom";
+import { BehaviorSubject } from 'rxjs';
 // import { useHistory, useNavigate } from "react-router-dom";
 
-const Register = () => {
+const Register = ({ onDataChange }) => {
+  const sendDataToParent = (val) => {
+    onDataChange(val);
+};
   // const params = id;
   // console.log("param id", id);
-
+  const navigate = useNavigate();
   // const history = useHistory(); // Initialize useHistory
   // const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -27,6 +33,66 @@ const Register = () => {
   const [username, setUsername] = useState();
 
   const [loading, setLoading] = useState(false);
+
+  const handleRegister = async (e) => {
+    sendDataToParent(true);
+    await ownerHandleSubmit(e);
+  }
+
+  const ownerHandleSubmit = async (e) => {
+    setError(null);
+    e.preventDefault();
+    const validationErrors = validateForm(formData);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    try {
+      setLoading(true); // Set loading state to true when API call sta
+      await OwnerAxiosClient.get("/sanctum/csrf-cookie");
+      const { name, email, password, password_confirmation, mobile } =
+        formData;
+      const { data, statusText, message, error, status } =
+        await OwnerAxiosClient.post("/api/auth/adminregister", {
+          username: name,
+          email: email,
+          password: password,
+          //   password_confirmation,
+          //   mobile,
+        });
+      console.log("errior response", error);
+      if (error) {
+        sendDataToParent(false);
+        setError(error);
+        setLoading(false); 
+        return;
+      }
+      if (status === 201) {
+        localStorage.setItem("isAuthenticated", true);
+        localStorage.setItem("ACCESS_OWNER_TOKEN", data.access_token);
+        await handleSubmit(e);
+      }
+      if (status !== 201) {
+        sendDataToParent(false);
+        console.log("message", message);
+        localStorage.clear();
+        setLoading(false);
+        setError(message);
+      }
+    } catch (error) {
+      sendDataToParent(false);
+      setLoading(false);
+      localStorage.clear();
+      console.log("Error:", error);
+      if (error.response && error.response.status === 409) {
+        setError("Email already exists. Please use a different email.");
+      } else {
+        setError("Internal server error. Please try again later.");
+      }
+    } finally {
+     
+    }
+  };
 
   const handleSubmit = async (e) => {
     setError(null);
@@ -54,10 +120,20 @@ const Register = () => {
       );
 
       if (status === 201) {
+        sendDataToParent(false);
+        toast.success("Register successfully!");
         console.log("message", message);
         console.log("response data", data);
         localStorage.setItem("ACCESS_TOKEN", data.accessToken);
-
+        const redirect = localStorage.getItem('redirect');
+        const bookingLogin = localStorage.getItem('bookingLogin');
+        if (redirect) {
+            navigate(redirect);
+            localStorage.removeItem('redirect');
+        } else if (!bookingLogin) {
+            navigate("/dashboard")
+        } 
+        localStorage.removeItem('bookingLogin');
         setIsRegistered(true);
         setFormData({
           name: "",
@@ -74,6 +150,8 @@ const Register = () => {
               username: formData.name,
               email: formData.email,
               token: data.accessToken,
+              mobile: data.mobile,
+              spotLength: 0
             },
           })
         );
@@ -81,11 +159,16 @@ const Register = () => {
         // history.push("/review-booking");
       }
       if (status !== 201) {
+        sendDataToParent(false);
+        setLoading(false);
         console.log("message", message);
-
+        localStorage.clear();
         setError(message);
       }
     } catch (err) {
+      sendDataToParent(false);
+      setLoading(false);
+      localStorage.clear();
       console.error("catching error", err);
       setError("Interval server error");
     } finally {
@@ -142,7 +225,7 @@ const Register = () => {
       {!isRegistered && (
         <div className="card">
           <div className="registerBg">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleRegister}>
               <div className="row">
                 <div className="">
                   <div className="row mb-2">
