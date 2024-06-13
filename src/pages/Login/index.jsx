@@ -29,17 +29,82 @@ const Login = ({ onDataChange }) => {
   const [errors, setErrors] = useState("");
 
   const handleSubmit = async (e) => {
-    debugger
-    sendDataToParent(true);
-    await ownerHandleSubmit(e);
+   
+    await loginHandleSubmit(e);
   }
 
   const GoogleLogin = ({ onGoogleResponse }) => {
     setLoading(true);
   }
 
+  const loginHandleSubmit = async (e) => {
+    e.preventDefault();
+    setErrors("");
+    setError({
+      username: "",
+      password: "",
+      form: "",
+    });
+    try {
+      setLoading(true);
+      sendDataToParent(true);
+      await OwnerAxiosClient.get("/sanctum/csrf-cookie");
+      const { email, password } = formData;
+      const { data, status } = await OwnerAxiosClient.post("api/auth/adminlogin", {
+        email,
+        password,
+      });
+      if (status === 200) {
+        localStorage.setItem('spotLength', data.spot_length);
+        localStorage.setItem("isAuthenticated", true);
+        localStorage.setItem("ACCESS_OWNER_TOKEN", data.owner_access_token);
+        sendDataToParent(false);
+        toast.success("Login successfully!");
+        localStorage.setItem("ACCESS_TOKEN", data.user_access_token);
+        const redirect = localStorage.getItem('redirect');
+        const bookingLogin = localStorage.getItem('bookingLogin');
+        if (redirect) {
+            navigate(redirect);
+            localStorage.removeItem('redirect');
+        } else if (!bookingLogin) {
+          navigate("/dashboard");
+        } 
+        localStorage.removeItem('bookingLogin');
+        dispatch(
+          saveUser({
+            data: {
+              isLoggedIn: true,
+              username: data.user.name,
+              email: data.user.email,
+              token: data.user_access_token,
+              mobile: data.user.mobile,
+              spotLength: data.spot_length
+            },
+          })
+        );
+      }
+      if (status !== 200) {
+        sendDataToParent(false);
+        localStorage.clear();
+        navigate("/userlogin")
+        setError({
+          ...error,
+          form: "OOPS! Check your username and password",
+        });
+        setLoading(false);
+        // setErrors("OOPS! Check your username and password");
+      }
+    } catch (err) {
+      sendDataToParent(false);
+      localStorage.clear();
+      console.error("catching error", err);
+      setErrors("Internal server Error");
+      setLoading(false);
+    } finally {
+    }
+  };
+
   const ownerHandleSubmit = async (e) => {
-    debugger
     e.preventDefault();
     setErrors("");
     setError({
@@ -107,7 +172,6 @@ const Login = ({ onDataChange }) => {
         localStorage.setItem("ACCESS_TOKEN", data.accessToken);
         const redirect = localStorage.getItem('redirect');
         const bookingLogin = localStorage.getItem('bookingLogin');
-        debugger
         if (redirect) {
             navigate(redirect);
             localStorage.removeItem('redirect');

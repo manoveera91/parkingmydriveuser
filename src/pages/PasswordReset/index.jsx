@@ -7,13 +7,28 @@ import Header from "../../components/Header";
 import Loader from "../../components/Loader";
 import { toast } from "react-toastify";
 import OwnerAxiosClient from "../../axios/OwnerAxiosClient";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 const PasswordReset = () => {
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showCnfPassword, setShowCnfPassword] = useState(false);
   const { token } = useParams();
   const email = new URLSearchParams(window.location.search).get("email");
   const navigate = useNavigate();
+
+  const togglePasswordVisibility = (type) => {
+    switch (type) {
+      case '1':
+        setShowNewPassword(!showNewPassword);
+        break;
+      case '2':
+        setShowCnfPassword(!showCnfPassword);
+        break
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -85,7 +100,7 @@ const PasswordReset = () => {
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <BreadCrumbs title="Reset Password" />
       <div className="loginOuter">
         <div className="row">
@@ -119,7 +134,7 @@ const PasswordReset = () => {
                       </label>
                       <div className="input-group input-group-merge">
                         <input
-                          type="password"
+                          type={showNewPassword ? 'text' : 'password'}
                           required
                           name="password"
                           // placeholder="Enter your email"
@@ -128,6 +143,14 @@ const PasswordReset = () => {
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                         />
+                        <div className="hide-show-icon">
+                          <FontAwesomeIcon
+                            icon={showNewPassword ? faEyeSlash : faEye}
+                            onClick={() => togglePasswordVisibility('1')}
+                            className="change-password-toggle-icon"
+                            style={{ cursor: 'pointer', marginLeft: '10px' }}
+                          />
+                        </div>
                       </div>
                     </div>
 
@@ -137,7 +160,7 @@ const PasswordReset = () => {
                       </label>
                       <div className="input-group input-group-merge">
                         <input
-                          type="password"
+                          type={showCnfPassword ? 'text' : 'password'}
                           required
                           name="password_confirmation"
                           // placeholder="Enter your email"
@@ -146,6 +169,14 @@ const PasswordReset = () => {
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
                         />
+                         <div className="hide-show-icon">
+                          <FontAwesomeIcon
+                            icon={showCnfPassword ? faEyeSlash : faEye}
+                            onClick={() => togglePasswordVisibility('2')}
+                            className="change-password-toggle-icon"
+                            style={{ cursor: 'pointer', marginLeft: '10px' }}
+                          />
+                        </div>
                       </div>
                     </div>
                     <input type="hidden" name="token" value={token} />

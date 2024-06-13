@@ -97,7 +97,7 @@ const ReviewBookingOld = () => {
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <BreadCrumbs title={"Review Booking"} />
       <div className="loginOuter">
         <div className="container">

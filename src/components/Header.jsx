@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, forwardRef, useImperativeHandle } from "react";
 import Logo from "../assets/images/logo.png";
 import MobileLogo from "../assets/images/mobile-logo.jpg";
 import ProfileLogo from "../assets/images/profile.png";
@@ -8,21 +8,40 @@ import { useDispatch, useSelector } from "react-redux";
 import { saveUser } from "../redux/userSlice";
 import { Popover, ArrowContainer } from 'react-tiny-popover'
 import { toast } from "react-toastify";
-function Header() {
+const Header = forwardRef((props, ref) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const userRedux = useSelector((state) => {
     return state.user.value;
   });
-  // const dropdownRef = useRef(null);
+  useImperativeHandle(ref, () => ({
+    handleActiveClick() {
+      console.log('Header function triggered');
+        if (isPopoverOpen == false) {
+          setIsPopoverOpen(true);
+        } else {
+          setIsPopoverOpen(false);
+        }
+        console.log(isPopoverOpen);
+        // Trigger the click event
+        // element.click();
+    },
+
+    handleCloseClick() {
+      console.log('Header function triggered');
+        setIsPopoverOpen(false);
+        console.log(isPopoverOpen);
+        // Trigger the click event
+        // element.click();
+    }
+  }));
   // const handleClickOutside = (event) => {
 
   //   if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
   //     setIsPopoverOpen(false);
   //   }
   // }
-
   // useEffect(() => {
   //   if (isPopoverOpen) {
   //     document.addEventListener('click', handleClickOutside);
@@ -75,6 +94,7 @@ function Header() {
                 data-toggle="collapse"
                 data-target="#bs-example-navbar-collapse-1"
                 aria-expanded="false"
+                onClick={() => setIsPopoverOpen(!isPopoverOpen)}
               >
                 <span className="navbar-toggler-icon"></span>
               </button>
@@ -89,7 +109,7 @@ function Header() {
                   exact
                   to="/"
                   className="nav-item"
-                  // activeClassName="active"
+                // activeClassName="active"
                 >
                   <a
                     onClick={() => { localStorage.removeItem('redirect') }}
@@ -102,7 +122,7 @@ function Header() {
                 >
                   <a
                     onClick={() => { localStorage.removeItem('redirect') }}
-                    className="nav-link anchor-link">reserve a parking space</a>
+                    className="nav-link anchor-link">find a spot to park</a>
                 </NavLink>
 
                 {userRedux.spotLength == 0 && (
@@ -114,7 +134,7 @@ function Header() {
                       //  className="nav-item"
                       //  activeClassName="active"
                       // href={import.meta.env.VITE_OWNER_URL}
-                      className="nav-link anchor-link">offer a parking space</a>
+                      className="nav-link anchor-link">list your driveway</a>
                   </NavLink>
                 )}
 
@@ -156,7 +176,7 @@ function Header() {
                 Parking Slot Owner
               </a> */}
 
-                <Popover
+                {/* <Popover
                   className='popover-main-container'
                   isOpen={isPopoverOpen}
                   positions={['right', 'bottom']}
@@ -176,7 +196,7 @@ function Header() {
                       arrowClassName='popover-arrow'
                     >
                       <div className="common-menu-item"
-                        onClick={() => {setIsPopoverOpen(!isPopoverOpen), localStorage.removeItem('redirect')}}
+                        onClick={() => { setIsPopoverOpen(!isPopoverOpen), localStorage.removeItem('redirect') }}
                       >
                         {!userRedux.isLoggedIn && (
                           <NavLink
@@ -259,94 +279,95 @@ function Header() {
                   <button className="profile-icon-btn" onClick={() => setIsPopoverOpen(!isPopoverOpen)}>
                     <img src={ProfileLogo} />
                   </button>
-                </Popover>
-                <div>
-
-                </div>
+                </Popover> */}
               </ul>
-              {/* <div className="menu-btn-group-new">
-              <button className="profile-icon-btn" onClick={() => setIsPopoverOpen(!isPopoverOpen)}>
-                <img src={ProfileLogo} />
-              </button>
-              {isPopoverOpen && (
-                <div className="common-menu-item"
-                  onClick={() => setIsPopoverOpen(!isPopoverOpen)}
-                >
-                  {!userRedux.isLoggedIn && (
-                    <NavLink
-                      to="/userlogin"
-                      className="nav-item"
+              <div className="menu-btn-group-new">
+                <button className="profile-icon-btn">
+                  <img id="profileImg" src={ProfileLogo} />
+                </button>
+                {isPopoverOpen && (
+                  <div className="common-menu-item" id="popoverMenu"
+                    onClick={() => setIsPopoverOpen(!isPopoverOpen)}
                     >
-                      <a href="">
-                        <div className="login_btn">Login/Register</div>
-                      </a>
-                    </NavLink>
-                  )}
+                    {!userRedux.isLoggedIn && (
+                      <NavLink
+                        to="/userlogin"
+                        className="nav-item"
+                      >
+                        <i className="fa fa-caret-up" aria-hidden="true"></i>
+                        <a href="">
+                          <div className="login_btn">Login/Register</div>
+                        </a>
+                      </NavLink>
+                    )}
 
-                  {userRedux.isLoggedIn && (
-                    <NavLink
-                      to="/dashboard"
-                      className="nav-item"
-                    >
-                      <a href="">
-                        <div className="login_btn">Dashboard</div>
-                      </a>
-                    </NavLink>
-                  )}
+                    {userRedux.isLoggedIn && (
+                      <NavLink
+                        to="/dashboard"
+                        className="nav-item"
+                      >
+                        <i class="fa fa-caret-up" aria-hidden="true"></i>
+                        <a href="">
+                          <div className="login_btn">Dashboard</div>
+                        </a>
+                      </NavLink>
+                    )}
 
-                  {userRedux.isLoggedIn && (
-                    <NavLink
-                      to="/booking-history"
-                      className="nav-item"
-                    >
-                      <a href="">
-                        <div className="login_btn">My Bookings</div>
-                      </a>
-                    </NavLink>
-                  )}
+                    {userRedux.isLoggedIn && (
+                      <NavLink
+                        to="/booking-history"
+                        className="nav-item"
+                      >
+                        <a href="">
+                          <div className="login_btn">My Bookings</div>
+                        </a>
+                      </NavLink>
+                    )}
 
-                  {userRedux.isLoggedIn && (
-                    <NavLink
-                      to="/my-parking-spot"
-                      className="nav-item"
-                    >
-                      <a href="">
-                        <div className="login_btn">My Slot and Bookings</div>
-                      </a>
-                    </NavLink>
-                  )}
+                    {userRedux.isLoggedIn && (
+                      <NavLink
+                        to="/my-slot-bookings"
+                        className="nav-item"
+                      >
+                        <a href="">
+                          <div className="login_btn">Driveway Bookings</div>
+                        </a>
+                      </NavLink>
+                    )}
 
-                  {userRedux.isLoggedIn && (
-                    <NavLink
-                      className="nav-item"
-                    >
-                      <a href="">
-                        <div className="login_btn">Change Password</div>
-                      </a>
-                    </NavLink>
-                  )}
-                  {userRedux.isLoggedIn && (
-                    <NavLink
-                      className="nav-item"
-                    >
-                      <a href="">
-                        <div className="login_btn">Profile</div>
-                      </a>
-                    </NavLink>
-                  )}
-                  {userRedux.isLoggedIn && (
-                    <NavLink
-                      className="nav-item"
-                    >
-                      <a
-                        onClick={handleLogout}>
-                        <div className="login_btn">Logout</div>
-                      </a>
-                    </NavLink>
-                  )}
-                </div>
-              )}
-            </div> */}
+                    {userRedux.isLoggedIn && (
+                      <NavLink
+                      to="/change-password"
+                        className="nav-item"
+                      >
+                        <a href="">
+                          <div className="login_btn">Change Password</div>
+                        </a>
+                      </NavLink>
+                    )}
+                    {userRedux.isLoggedIn && (
+                      <NavLink
+                      to="/profile"
+                        className="nav-item"
+                      >
+                        <a href="">
+                          <div className="login_btn">Profile</div>
+                        </a>
+                      </NavLink>
+                    )}
+                    {userRedux.isLoggedIn && (
+                      <NavLink
+                        className="nav-item"
+                      >
+                        <a
+                          onClick={handleLogout}>
+                          <div className="login_btn">Logout</div>
+                        </a>
+                      </NavLink>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </nav>
         </div>
@@ -371,6 +392,6 @@ function Header() {
       )}
     </>
   );
-}
+})
 
 export default Header;

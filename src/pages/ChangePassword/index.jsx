@@ -7,19 +7,43 @@ import Header from "../../components/Header";
 import Loader from "../../components/Loader";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 const ChangePassword = () => {
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showCnfPassword, setShowCnfPassword] = useState(false);
+
+  const togglePasswordVisibility = (type) => {
+    switch (type) {
+      case '1':
+        setShowPassword(!showPassword);
+        break;
+      case '2':
+        setShowNewPassword(!showNewPassword);
+        break;
+      case '3':
+        setShowCnfPassword(!showCnfPassword);
+        break
+    }
+  };
+
+  // const togglePasswordVisibility = () => {
+  //   setShowPassword(!showPassword);
+  // }
+
   const { token } = useParams();
   let email = '';
   const navigate = useNavigate();
 
   const userRedux = useSelector((state) => {
-    email = state.user.value.email; 
+    email = state.user.value.email;
     return state.user.value;
-});
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,6 +51,11 @@ const ChangePassword = () => {
     // Check if password and confirmation password match
     if (newPassword !== confirmNewPassword) {
       toast.error("New password and confirmation new password does not match.");
+      return;
+    }
+
+    if (password === newPassword) {
+      toast.error("Password has been already used.");
       return;
     }
 
@@ -54,7 +83,7 @@ const ChangePassword = () => {
           setNewPassword("");
           setConfirmNewPassword("");
           toast.success("Password successfully updated!");
-        //   navigate("/userlogin")
+          //   navigate("/userlogin")
 
           // navigate("/");
         } else {
@@ -94,7 +123,7 @@ const ChangePassword = () => {
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <BreadCrumbs title="Change Password" />
       <div className="loginOuter">
         <div className="row justify-content-center">
@@ -128,7 +157,7 @@ const ChangePassword = () => {
                       </label>
                       <div className="input-group input-group-merge">
                         <input
-                          type="password"
+                          type={showPassword ? 'text' : 'password'}
                           required
                           name="password"
                           // placeholder="Enter your email"
@@ -137,6 +166,15 @@ const ChangePassword = () => {
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                         />
+                        <div className="hide-show-icon">
+                        <FontAwesomeIcon
+                          icon={showPassword ? faEyeSlash : faEye}
+                          onClick={() => togglePasswordVisibility('1')}
+                          className="change-password-toggle-icon"
+                          style={{ cursor: 'pointer', marginLeft: '10px' }}
+                        />
+                        </div>
+           
                       </div>
                     </div>
 
@@ -146,7 +184,7 @@ const ChangePassword = () => {
                       </label>
                       <div className="input-group input-group-merge">
                         <input
-                          type="password"
+                          type={showNewPassword ? 'text' : 'password'}
                           required
                           name="newPassword"
                           // placeholder="Enter your email"
@@ -155,6 +193,14 @@ const ChangePassword = () => {
                           value={newPassword}
                           onChange={(e) => setNewPassword(e.target.value)}
                         />
+                        <div className="hide-show-icon">
+                        <FontAwesomeIcon
+                          icon={showNewPassword ? faEyeSlash : faEye}
+                          onClick={() => togglePasswordVisibility('2')}
+                          className="change-password-toggle-icon"
+                          style={{ cursor: 'pointer', marginLeft: '10px' }}
+                        />
+                        </div>
                       </div>
                     </div>
 
@@ -164,7 +210,7 @@ const ChangePassword = () => {
                       </label>
                       <div className="input-group input-group-merge">
                         <input
-                          type="password"
+                          type={showCnfPassword ? 'text' : 'password'}
                           required
                           name="password_confirmation"
                           // placeholder="Enter your email"
@@ -173,6 +219,15 @@ const ChangePassword = () => {
                           value={confirmNewPassword}
                           onChange={(e) => setConfirmNewPassword(e.target.value)}
                         />
+                        <div className="hide-show-icon">
+                        <FontAwesomeIcon
+                          icon={showCnfPassword ? faEyeSlash : faEye}
+                          onClick={() => togglePasswordVisibility('3')}
+                          className="change-password-toggle-icon"
+                          style={{ cursor: 'pointer', marginLeft: '10px' }}
+                        />
+                        </div>
+                
                       </div>
                     </div>
                     <input type="hidden" name="token" value={token} />

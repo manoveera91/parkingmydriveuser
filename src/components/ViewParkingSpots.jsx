@@ -16,7 +16,7 @@ const ViewParkingSpots = () => {
   }, [state]);
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <BreadCrumbs title="View Bookings" />
       <div className="loginOuter afterownerLogin">
         <div className="container">

@@ -9,7 +9,7 @@ const Profile = () => {
     });
     return (
         <>
-            <Header />
+            {/* <Header /> */}
             <BreadCrumbs title="Profile" />
             <div className="loginOuter afterownerLogin">
                 <div className="container">

@@ -101,7 +101,7 @@ const Earnings = () => {
 
   return (
     <div>
-      <Header />
+      {/* <Header /> */}
       {/* <div className="parking-slot-header">
         <NavLink className="parking-slots non-active" to="/my-parking-spot">
           My Driveways

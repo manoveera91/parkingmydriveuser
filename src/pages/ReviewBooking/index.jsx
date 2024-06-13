@@ -10,6 +10,8 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { saveUser } from "../../redux/userSlice";
 import FacebookLogin from 'react-facebook-login';
+import Streetview from 'react-google-streetview';
+import { combineDateTime } from "../../utils/DateTime";
 import {
   calculateTotalDuration,
   convertToMySQLDate,
@@ -32,9 +34,15 @@ import Loader from "../../components/Loader";
 import OwnerAxiosClient from "../../axios/OwnerAxiosClient";
 import { toast } from "react-toastify";
 const ReviewBooking = () => {
+  const apiKey = import.meta.env.VITE_APP_GOOGLE_API_KEY;
+  const streetViewPanoramaOptions = {
+    position: { lat: 46.9171876, lng: 17.8951832 },
+    pov: { heading: 0, pitch: 0 },
+    zoom: 1,
+  };
   const handleDataChange = (newData) => {
     setLoading(newData);
-};
+  };
   const dispatch = useDispatch();
   const searchRedux = useSelector((state) => {
     return state.search.value;
@@ -106,6 +114,7 @@ const ReviewBooking = () => {
     }
   }, [item]);
 
+
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: import.meta.env.VITE_APP_GOOGLE_API_KEY,
@@ -119,8 +128,61 @@ const ReviewBooking = () => {
   const handleGoogleResponse = (response) => {
     // Perform actions with the received data
     console.log('Received data from GoogleLogin:', response);
-    onwerSubmit(response.name, response.email, response.sub);
+    loginSubmit(response.name, response.email, response.sub);
   };
+
+  const loginSubmit = async (name, email, pass) => {
+    try {
+      setLoading(true); // Set loading state to true when API call sta
+      await OwnerAxiosClient.get("/sanctum/csrf-cookie");
+      const { data, error, status } =
+        await OwnerAxiosClient.post("/api/auth/ownersociallogin", {
+          username: name,
+          email: email,
+          password: pass,
+          mobile: '9999999999'
+        });
+      if (error) {
+        localStorage.clear();
+        setError(error);
+        setLoading(false);
+        return;
+      }
+      if (status === 200) {
+        localStorage.setItem('spotLength', data.spot_length);
+        localStorage.setItem("isAuthenticated", true);
+        localStorage.setItem("ACCESS_OWNER_TOKEN", data.owner_access_token);
+        localStorage.setItem("ACCESS_TOKEN", data.user_access_token);
+        toast.success("Login successfully!");
+        setLoading(false);
+        dispatch(
+          saveUser({
+            data: {
+              isLoggedIn: true,
+              username: data.user.name,
+              email: data.user.email,
+              token: data.user_access_token,
+              mobile: data.user.mobile,
+              spotLength: data.spot_length ? data.spot_length : 0
+            },
+          })
+        );
+      } else {
+        localStorage.clear();
+        setError(error);
+        setLoading(false);
+        return;
+      }
+    } catch (error) {
+      setLoading(false);
+      console.log("Error:", error);
+      if (error.response && error.response.status === 409) {
+        setError("Email already exists. Please use a different email.");
+      } else {
+        setError("Internal server error. Please try again later.");
+      }
+    }
+  }
 
   const onwerSubmit = async (name, email, pass) => {
     try {
@@ -280,8 +342,8 @@ const ReviewBooking = () => {
 
     const bookingData = {
       parking_spot_id: item.id.toString(),
-      from_datetime: convertToMySQLDatetime(formData.from, formData.from_time),
-      to_datetime: convertToMySQLDatetime(formData.to, formData.to_time),
+      from_datetime: combineDateTime(formData.from, formData.from_time),
+      to_datetime: combineDateTime(formData.to, formData.to_time),
       vehicle_name: "SUV",
       vehicle_number: vehicleNumber,
       slot: item.slot_name,
@@ -443,7 +505,7 @@ const ReviewBooking = () => {
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <BreadCrumbs title={"Review Booking"} />
       <div className="loginOuter">
         <div className="container">
@@ -744,8 +806,21 @@ const ReviewBooking = () => {
                     </div>
                   </div>
                   <div className="col-lg-5 card-body">
+                  {isLoaded && (
+                      <div className="street-view">
+                        <Streetview
+                          apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
+                          streetViewPanoramaOptions={{
+                            position: { lat: markers?.position?.lat, lng: markers?.position?.lng },
+                            pov: { heading: 0, pitch: 0 },
+                            zoom: 1,
+                          }}
+                        />
+                      </div>)}
+
+
                     <div className="reviewDetails">
-                      {isLoaded && (
+                      {/* {isLoaded && (
                         <GoogleMap
                           // onLoad={(map) => setMap(map)}
                           center={{
@@ -760,8 +835,7 @@ const ReviewBooking = () => {
                           mapContainerStyle={{
                             width: "23vw",
                             height: "50vh",
-                          }}
-                        >
+                          }}>
                           <Marker
                             key={markers.id}
                             position={markers.position}
@@ -776,9 +850,11 @@ const ReviewBooking = () => {
                             )}
                           </Marker>
                         </GoogleMap>
-                      )}
-                      <h4 className="mb-2 mt-2">{item?.slot_name}</h4>
+                      )} */}
 
+                      <h4 className="mb-2 mt-2">{item?.slot_name}</h4>
+                      <div id="map"></div>
+                      <div id="pano"></div>
                       <div className="row information">
                         <div className="col-lg-12 col-lg-12 col-sm-12 col-md-12">
                           <p>

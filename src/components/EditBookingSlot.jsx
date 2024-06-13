@@ -103,7 +103,7 @@ const EditBookingSlot = () => {
 
   return (
     <div>
-      <Header />
+      {/* <Header /> */}
       <BreadCrumbs title="Edit Booking" />
       <div className="loginOuter afterownerLogin">
         <div className="container">

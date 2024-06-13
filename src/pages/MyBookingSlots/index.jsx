@@ -40,19 +40,29 @@ const MyBookingSlots = () => {
   }, []);
 
   useEffect(() => {
+
+    // Recent
     setBookingCount(
       bookingLists.filter((item) => {
-        return item.status === "Booked";
+        const expirationDate = new Date(item.from_datetime);
+        const now = new Date();
+        return item.status === "Booked" && expirationDate >= now;
       }).length
     );
+
+    // Cancelled
     setCancelledBookingsCount(
       bookingLists.filter((item) => {
         return item.status === "Cancelled";
       }).length
     );
+
+    // Completed
     setConfirmedBookingsCount(
       bookingLists.filter((item) => {
-        return item.status === "Confirmed";
+        const expirationDate = new Date(item.from_datetime);
+        const now = new Date();
+        return item.status != "Cancelled" && expirationDate < now;
       }).length
     );
   }, [bookingLists]);
@@ -91,7 +101,7 @@ const MyBookingSlots = () => {
 
   return (
     <div>
-      <Header />
+      {/* <Header /> */}
       {/* <div className="parking-slot-header">
         <NavLink className="parking-slots non-active" to="/my-parking-spot">
           My Driveways
@@ -151,7 +161,9 @@ const MyBookingSlots = () => {
                           <tbody>
                             {bookingLists
                               ?.filter((item) => {
-                                return item.status === "Booked";
+                                const expirationDate = new Date(item.from_datetime);
+                                const now = new Date();
+                                return item.status === "Booked" && expirationDate >= now;
                               })
                               .map((booking, index) => (
                                 <tr key={booking.id}>
@@ -246,7 +258,9 @@ const MyBookingSlots = () => {
                             {bookingLists
                               ?.filter((item) => {
                                 console.log("item", item);
-                                return item.status === "Confirmed";
+                                const expirationDate = new Date(item.from_datetime);
+                                const now = new Date();
+                                return item.status != "Cancelled" && expirationDate < now;
                               })
                               .map((booking, index) => (
                                 <tr key={booking.id}>

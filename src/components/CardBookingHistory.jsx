@@ -1,6 +1,16 @@
 const CardBookingHistory = (data) => {
   console.log("card data", data);
+  let status = '';
+  const expirationDate = new Date(data.date);
+  const now = new Date();
 
+  if (data.status === "Booked" && expirationDate > now) {
+    status = "Recent";
+  } else if (data.status === "Cancelled") {
+    status = "Cancelled";
+  } else if (data.status === "Confirmed" || expirationDate <= now) {
+    status = "Completed";
+  }
   return (
     <div className="card mb-3">
       <div className="booklistingContent">
@@ -22,10 +32,10 @@ const CardBookingHistory = (data) => {
                 <a>{data.title}</a>
                 <span
                   className={`bookinglabel ${
-                    data?.status === "Booked" ? "confirm" : "cancel"
+                    status === "Recent" ? "confirm" : "cancel"
                   }`}
                 >
-                  {data.status === "" ? "" : data.status}
+                  {status === "Recent" ? "Booked" : status}
                 </span>
               </h3>
               <div className="location">{data.location}</div>
@@ -41,7 +51,7 @@ const CardBookingHistory = (data) => {
                 <span>Booked on:</span> {data.booked_on}
               </div>
 
-              {data.status === "Cancelled" && data.cancelled_booking && (
+              {status === "Cancelled" && data.cancelled_booking && (
                 <>
                   <div className="refund">
                     <span>
@@ -80,7 +90,7 @@ const CardBookingHistory = (data) => {
             <div className="bookingInfo">
               {/* <a className="btn btn-outline-gray">View booking details</a>
               <a className="btn btn-outline-gray">Book again</a> */}
-              {data.status === "Booked" && (
+              {status === "Recent" && (
                 <a
                   className="btn btn-outline-gray"
                   onClick={() => data.onClick(data)}

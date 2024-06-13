@@ -35,11 +35,12 @@ const Register = ({ onDataChange }) => {
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async (e) => {
-    sendDataToParent(true);
-    await ownerHandleSubmit(e);
+    
+    // await ownerHandleSubmit(e);
+    await loginSubmit(e);
   }
 
-  const ownerHandleSubmit = async (e) => {
+  const loginSubmit = async (e) => {
     setError(null);
     e.preventDefault();
     const validationErrors = validateForm(formData);
@@ -49,16 +50,17 @@ const Register = ({ onDataChange }) => {
     }
     try {
       setLoading(true); // Set loading state to true when API call sta
+      sendDataToParent(true);
       await OwnerAxiosClient.get("/sanctum/csrf-cookie");
       const { name, email, password, password_confirmation, mobile } =
         formData;
       const { data, statusText, message, error, status } =
         await OwnerAxiosClient.post("/api/auth/adminregister", {
-          username: name,
-          email: email,
-          password: password,
-          //   password_confirmation,
-          //   mobile,
+          name,
+          email,
+          password,
+          password_confirmation,
+          mobile,
         });
       console.log("errior response", error);
       if (error) {
@@ -69,8 +71,40 @@ const Register = ({ onDataChange }) => {
       }
       if (status === 201) {
         localStorage.setItem("isAuthenticated", true);
-        localStorage.setItem("ACCESS_OWNER_TOKEN", data.access_token);
-        await handleSubmit(e);
+        localStorage.setItem("ACCESS_OWNER_TOKEN", data.owner_access_token);
+        sendDataToParent(false);
+        toast.success("Register successfully!");
+        localStorage.setItem("ACCESS_TOKEN", data.user_access_token);
+        const redirect = localStorage.getItem('redirect');
+        const bookingLogin = localStorage.getItem('bookingLogin');
+        if (redirect) {
+            navigate(redirect);
+            localStorage.removeItem('redirect');
+        } else if (!bookingLogin) {
+            navigate("/dashboard")
+        } 
+        localStorage.removeItem('bookingLogin');
+        setIsRegistered(true);
+        setFormData({
+          name: "",
+          email: "",
+          password: "",
+          password_confirmation: "",
+          mobile: "",
+        });
+
+        dispatch(
+          saveUser({
+            data: {
+              isLoggedIn: true,
+              username: data.user.name,
+              email: data.user.email,
+              token: data.user_access_token,
+              mobile: data.user.mobile,
+              spotLength: data.spot_length
+            },
+          })
+        );
       }
       if (status !== 201) {
         sendDataToParent(false);
@@ -94,87 +128,142 @@ const Register = ({ onDataChange }) => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    setError(null);
-    e.preventDefault();
+  // const ownerHandleSubmit = async (e) => {
+  //   setError(null);
+  //   e.preventDefault();
+  //   const validationErrors = validateForm(formData);
+  //   if (Object.keys(validationErrors).length > 0) {
+  //     setErrors(validationErrors);
+  //     return;
+  //   }
+  //   try {
+  //     setLoading(true); // Set loading state to true when API call sta
+  //     await OwnerAxiosClient.get("/sanctum/csrf-cookie");
+  //     const { name, email, password, password_confirmation, mobile } =
+  //       formData;
+  //     const { data, statusText, message, error, status } =
+  //       await OwnerAxiosClient.post("/api/auth/adminregister", {
+  //         username: name,
+  //         email: email,
+  //         password: password,
+  //         //   password_confirmation,
+  //         //   mobile,
+  //       });
+  //     console.log("errior response", error);
+  //     if (error) {
+  //       sendDataToParent(false);
+  //       setError(error);
+  //       setLoading(false); 
+  //       return;
+  //     }
+  //     if (status === 201) {
+  //       localStorage.setItem("isAuthenticated", true);
+  //       localStorage.setItem("ACCESS_OWNER_TOKEN", data.access_token);
+  //       await handleSubmit(e);
+  //     }
+  //     if (status !== 201) {
+  //       sendDataToParent(false);
+  //       console.log("message", message);
+  //       localStorage.clear();
+  //       setLoading(false);
+  //       setError(message);
+  //     }
+  //   } catch (error) {
+  //     sendDataToParent(false);
+  //     setLoading(false);
+  //     localStorage.clear();
+  //     console.log("Error:", error);
+  //     if (error.response && error.response.status === 409) {
+  //       setError("Email already exists. Please use a different email.");
+  //     } else {
+  //       setError("Internal server error. Please try again later.");
+  //     }
+  //   } finally {
+     
+  //   }
+  // };
 
-    const validationErrors = validateForm(formData);
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-    try {
-      setUsername(formData.name);
-      setLoading(true); // Set loading state to true when API call sta
-      await AxiosClient.get("/sanctum/csrf-cookie");
-      const { name, email, password, password_confirmation, mobile } = formData;
-      const { data, statusText, message, status } = await AxiosClient.post(
-        "/api/auth/register",
-        {
-          name,
-          email,
-          password,
-          password_confirmation,
-          mobile,
-        }
-      );
+  // const handleSubmit = async (e) => {
+  //   setError(null);
+  //   e.preventDefault();
 
-      if (status === 201) {
-        sendDataToParent(false);
-        toast.success("Register successfully!");
-        console.log("message", message);
-        console.log("response data", data);
-        localStorage.setItem("ACCESS_TOKEN", data.accessToken);
-        const redirect = localStorage.getItem('redirect');
-        const bookingLogin = localStorage.getItem('bookingLogin');
-        if (redirect) {
-            navigate(redirect);
-            localStorage.removeItem('redirect');
-        } else if (!bookingLogin) {
-            navigate("/dashboard")
-        } 
-        localStorage.removeItem('bookingLogin');
-        setIsRegistered(true);
-        setFormData({
-          name: "",
-          email: "",
-          password: "",
-          password_confirmation: "",
-          mobile: "",
-        });
+  //   const validationErrors = validateForm(formData);
+  //   if (Object.keys(validationErrors).length > 0) {
+  //     setErrors(validationErrors);
+  //     return;
+  //   }
+  //   try {
+  //     setUsername(formData.name);
+  //     setLoading(true); // Set loading state to true when API call sta
+  //     await AxiosClient.get("/sanctum/csrf-cookie");
+  //     const { name, email, password, password_confirmation, mobile } = formData;
+  //     const { data, statusText, message, status } = await AxiosClient.post(
+  //       "/api/auth/register",
+  //       {
+  //         name,
+  //         email,
+  //         password,
+  //         password_confirmation,
+  //         mobile,
+  //       }
+  //     );
 
-        dispatch(
-          saveUser({
-            data: {
-              isLoggedIn: true,
-              username: formData.name,
-              email: formData.email,
-              token: data.accessToken,
-              mobile: data.mobile,
-              spotLength: 0
-            },
-          })
-        );
-        // navigate(`/review-booking/${params}`);
-        // history.push("/review-booking");
-      }
-      if (status !== 201) {
-        sendDataToParent(false);
-        setLoading(false);
-        console.log("message", message);
-        localStorage.clear();
-        setError(message);
-      }
-    } catch (err) {
-      sendDataToParent(false);
-      setLoading(false);
-      localStorage.clear();
-      console.error("catching error", err);
-      setError("Interval server error");
-    } finally {
-      setLoading(false); // Set loading state to false when API call completes
-    }
-  };
+  //     if (status === 201) {
+  //       sendDataToParent(false);
+  //       toast.success("Register successfully!");
+  //       console.log("message", message);
+  //       console.log("response data", data);
+  //       localStorage.setItem("ACCESS_TOKEN", data.accessToken);
+  //       const redirect = localStorage.getItem('redirect');
+  //       const bookingLogin = localStorage.getItem('bookingLogin');
+  //       if (redirect) {
+  //           navigate(redirect);
+  //           localStorage.removeItem('redirect');
+  //       } else if (!bookingLogin) {
+  //           navigate("/dashboard")
+  //       } 
+  //       localStorage.removeItem('bookingLogin');
+  //       setIsRegistered(true);
+  //       setFormData({
+  //         name: "",
+  //         email: "",
+  //         password: "",
+  //         password_confirmation: "",
+  //         mobile: "",
+  //       });
+
+  //       dispatch(
+  //         saveUser({
+  //           data: {
+  //             isLoggedIn: true,
+  //             username: formData.name,
+  //             email: formData.email,
+  //             token: data.accessToken,
+  //             mobile: data.mobile,
+  //             spotLength: 0
+  //           },
+  //         })
+  //       );
+  //       // navigate(`/review-booking/${params}`);
+  //       // history.push("/review-booking");
+  //     }
+  //     if (status !== 201) {
+  //       sendDataToParent(false);
+  //       setLoading(false);
+  //       console.log("message", message);
+  //       localStorage.clear();
+  //       setError(message);
+  //     }
+  //   } catch (err) {
+  //     sendDataToParent(false);
+  //     setLoading(false);
+  //     localStorage.clear();
+  //     console.error("catching error", err);
+  //     setError("Interval server error");
+  //   } finally {
+  //     setLoading(false); // Set loading state to false when API call completes
+  //   }
+  // };
 
   const handleInput = (e) => {
     setFormData({

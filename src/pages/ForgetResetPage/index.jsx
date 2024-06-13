@@ -52,7 +52,7 @@ const ForgetResetPage = () => {
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <BreadCrumbs title="forget Password" />
       <div className="loginOuter">
         <div className="row">

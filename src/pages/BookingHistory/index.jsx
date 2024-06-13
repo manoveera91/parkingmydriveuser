@@ -25,7 +25,11 @@ const BookingHistory = () => {
   const [selectedCancelItem, setSelectedCancelItem] = useState({});
   const [bookingCount, setBookingCount] = useState(0);
   const [bookingData, setBookingData] = useState([]);
+  const [recentBookingData, setRecentBookingData] = useState([]);
+  const [cancelBookingData, setCancelBookingData] = useState([]);
+  const [completedBookingData, setCompletedBookingData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isPageloaded, setIsPageloaded] = useState(false);
   const [cancelledBookingsCount, setCancelledBookingsCount] = useState(0);
   const [confirmedBookingsCount, setConfirmedBookingsCount] = useState(0);
 
@@ -83,7 +87,7 @@ const BookingHistory = () => {
     }
   }, [searchParams]);
 
-  const handleClose = () => setShow(false);
+  const handleClose = () => { setShow(false) };
 
   const handleShow = (data) => {
     console.log("handleShow data", data);
@@ -95,42 +99,68 @@ const BookingHistory = () => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    setBookingCount(
-      bookingData.filter((item) => {
-        return item.status === "Booked";
-      }).length
-    );
-    setCancelledBookingsCount(
-      bookingData.filter((item) => {
-        return item.status === "Cancelled";
-      }).length
-    );
-    setConfirmedBookingsCount(
-      bookingData.filter((item) => {
-        return item.status === "Confirmed";
-      }).length
-    );
-  }, [bookingData]);
+  // useEffect(() => {
+
+  //   setBookingCount(
+  //     bookingData.filter((item) => {
+  //       const expirationDate = new Date(item.from_datetime);
+  //       const now = new Date();
+  //       return item.status === "Booked" && expirationDate > now;
+  //     }).length
+  //   );
+  //   setCancelledBookingsCount(
+  //     bookingData.filter((item) => {
+  //       return item.status === "Cancelled";
+  //     }).length
+  //   );
+  //   setConfirmedBookingsCount(
+  //     bookingData.filter((item) => {
+  //       const expirationDate = new Date(item.from_datetime);
+  //       const now = new Date();
+  //       return item.status === "Confirmed" || (item.status != "Cancelled" && expirationDate <= now);
+  //     }).length
+  //   );
+  // }, [bookingData]);
 
   const fetchData = async () => {
     setLoading(true);
+    setBookingCount(0);
+    setCancelledBookingsCount(0);
     try {
       const response = await AxiosClient.get("/api/bookings");
       console.log("response booking data", response.data);
 
       if (response.data) {
-        setLoading(false);
         const filteredUser = response.data.filter(
           (item) => item.user.email === userRedux.email
         );
-
-        setBookingData(filteredUser);
+        const recent = filteredUser.filter((item) => {
+          const expirationDate = new Date(item.from_datetime);
+          const now = new Date();
+          return item.status === "Booked" && expirationDate > now;
+        });
+        const cancelled = filteredUser.filter((item) => {
+          return item.status === "Cancelled";
+        });
+        const completed = filteredUser.filter((item) => {
+          const expirationDate = new Date(item.from_datetime);
+          const now = new Date();
+          return item.status === "Confirmed" || (item.status != "Cancelled" && expirationDate <= now);
+        });
+        setRecentBookingData(recent);
+        setCancelBookingData(cancelled);
+        setCompletedBookingData(completed);
+        setBookingCount(recent.length);
+        setCancelledBookingsCount(cancelled.length);
+        setConfirmedBookingsCount(completed.length);
+        // setBookingData(filteredUser);
+        setLoading(false);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
-      setLoading(false);
+      // setLoading(false);
+
     }
   };
 
@@ -145,16 +175,55 @@ const BookingHistory = () => {
         refund_status: "Pending",
         reason_for_cancellation: comment, // Assuming this is defined elsewhere
       });
-
       console.log("Cancel Booking data", response.data);
-
+      if (response.errors) {
+        toast.error("Comment is required");
+      }
       if (response.data) {
-        setLoading(false);
-
-        fetchData(); // Assuming this function fetches updated data
+        setBookingCount(0);
+        setCancelledBookingsCount(0);
+        try {
+          const responses = await AxiosClient.get("/api/bookings");
+          console.log("response booking data", response.data);
+          if (responses.data) {
+            const filteredUser = responses.data.filter(
+              (item) => item.user.email === userRedux.email
+            );
+            const recent = filteredUser.filter((item) => {
+              const expirationDate = new Date(item.from_datetime);
+              const now = new Date();
+              return item.status === "Booked" && expirationDate > now;
+            });
+            const cancelled = filteredUser.filter((item) => {
+              return item.status === "Cancelled";
+            });
+            const completed = filteredUser.filter((item) => {
+              const expirationDate = new Date(item.from_datetime);
+              const now = new Date();
+              return item.status === "Confirmed" || (item.status != "Cancelled" && expirationDate <= now);
+            });
+            setRecentBookingData(recent);
+            setCancelBookingData(cancelled);
+            setCompletedBookingData(completed);
+            setBookingCount(recent.length);
+            setCancelledBookingsCount(cancelled.length);
+            setConfirmedBookingsCount(completed.length);
+            // setBookingData(filteredUser);
+            setShow(false);
+            setLoading(false);
+            toast.success("Spot cancelled successfully!");
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
+          // setLoading(false);
+    
+        }
+        // setLoading(false);
+        // fetchData(); // Assuming this function fetches updated data
       }
 
-      setShow(false);
+
 
       // Handle success response
     } catch (error) {
@@ -167,7 +236,7 @@ const BookingHistory = () => {
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <div className="graybg">
         <div className="container">
           <div className="row">
@@ -210,14 +279,16 @@ const BookingHistory = () => {
                     eventKey="recent"
                     title={`Recent Booking (${bookingCount})`}
                   >
-                    {bookingData
+                    {recentBookingData
                       ?.sort(
                         (a, b) => new Date(b.booked_on) - new Date(a.booked_on)
                       )
                       .slice(0, 10)
-                      .filter((item) => {
-                        return item.status === "Booked";
-                      })
+                      // .filter((item) => {
+                      //   const expirationDate = new Date(item.from_datetime);
+                      //   const now = new Date();
+                      //   return item.status === "Booked" && expirationDate > now;
+                      // })
                       .map((item) => (
                         <CardBookingHistory
                           key={item.id}
@@ -233,20 +304,22 @@ const BookingHistory = () => {
                           onClick={handleShow}
                           status={item.status}
                           booked_on={item.booked_on}
-                          // img={BookingImg1}
+                        // img={BookingImg1}
                         />
                       ))}
-                    {bookingData?.filter((item) => item.status === "Booked")
+                    {recentBookingData
                       .length === 0 && <div>No records found</div>}
                   </Tab>
                   <Tab
                     eventKey="completed"
                     title={`Completed(${confirmedBookingsCount})`}
                   >
-                    {bookingData
-                      ?.filter((item) => {
-                        return item.status === "Confirmed";
-                      })
+                    {completedBookingData
+                      // ?.filter((item) => {
+                      //   const expirationDate = new Date(item.from_datetime);
+                      //   const now = new Date();
+                      //   return item.status === "Confirmed" || (item.status != "Cancelled" && expirationDate <= now);
+                      // })
                       .map((item) => (
                         <CardBookingHistory
                           key={item.id}
@@ -264,17 +337,22 @@ const BookingHistory = () => {
                           booked_on={item.booked_on}
                         />
                       ))}
-                    {bookingData?.filter((item) => item.status === "Confirmed")
+                    {completedBookingData
+                    // ?.filter((item) => {
+                    //   const expirationDate = new Date(item.from_datetime);
+                    //   const now = new Date();
+                    //   return item.status === "Confirmed" || (item.status != "Cancelled" && expirationDate <= now);
+                    // })
                       .length === 0 && <div>No records found</div>}
                   </Tab>
                   <Tab
                     eventKey="cancelled"
                     title={`Cancelled(${cancelledBookingsCount})`}
                   >
-                    {bookingData
-                      ?.filter((item) => {
-                        return item.status === "Cancelled";
-                      })
+                    {cancelBookingData
+                      // ?.filter((item) => {
+                      //   return item.status === "Cancelled";
+                      // })
                       .map((item) => (
                         <CardBookingHistory
                           key={item.id}
@@ -293,7 +371,8 @@ const BookingHistory = () => {
                           cancelled_booking={item.cancelled_booking}
                         />
                       ))}
-                    {bookingData?.filter((item) => item.status === "Cancelled")
+                    {cancelBookingData
+                    // ?.filter((item) => item.status === "Cancelled")
                       .length === 0 && <div>No records found</div>}
                   </Tab>
                 </Tabs>
@@ -315,8 +394,7 @@ const BookingHistory = () => {
                 selectedCancelItem.img &&
                 selectedCancelItem.img.length > 0 &&
                 selectedCancelItem.img[0].photo_path &&
-                `${
-                  import.meta.env.VITE_APP_BASE_URL
+                `${import.meta.env.VITE_APP_BASE_URL
                 }/storage/${selectedCancelItem.img[0].photo_path.slice(6)}`
               }
               className="img-fluid"

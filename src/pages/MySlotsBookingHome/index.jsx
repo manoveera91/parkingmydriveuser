@@ -76,7 +76,7 @@ const MySlotBookingsHome = () => {
 
     return (
         <>
-            <Header />
+            {/* <Header /> */}
             <div className="parking-slot-header">
                 <NavLink to="/add-parking-spots">
                     My Driveways

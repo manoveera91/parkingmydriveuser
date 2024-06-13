@@ -114,7 +114,7 @@ const Listing = () => {
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
 
       <Search title="Refine Your Parking Selection" />
       {loading ? (

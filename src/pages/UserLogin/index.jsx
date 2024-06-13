@@ -46,9 +46,69 @@ const UserLogin = () => {
     const handleGoogleResponse = (response) => {
         // Perform actions with the received data
         console.log('Received data from GoogleLogin:', response);
-        ownerSubmit(response.name, response.email, response.sub);
+        loginSubmit(response.name, response.email, response.sub);
         // handleSubmit(response.name, response.email, response.sub)
     };
+
+    const loginSubmit = async (name, email, pass) => {
+        try {
+            setLoading(true); // Set loading state to true when API call sta
+            await OwnerAxiosClient.get("/sanctum/csrf-cookie");
+            const { data, error, status } =
+                await OwnerAxiosClient.post("/api/auth/ownersociallogin", {
+                    username: name,
+                    email: email,
+                    password: pass,
+                    mobile: '9999999999'
+                });
+            if (error) {
+                localStorage.clear();
+                setError(error);
+                setLoading(false); 
+                return;
+            }
+            if (status === 200) {
+                localStorage.setItem('spotLength', data.spot_length);
+                localStorage.setItem("isAuthenticated", true);
+                localStorage.setItem("ACCESS_OWNER_TOKEN", data.owner_access_token);
+                localStorage.setItem("ACCESS_TOKEN", data.user_access_token);
+                toast.success("Login successfully!");
+                const redirect = localStorage.getItem('redirect')
+                if (redirect) {
+                    navigate(redirect);
+                    localStorage.removeItem('redirect');
+                } else {
+                    navigate("/dashboard");
+                }
+
+                dispatch(
+                    saveUser({
+                        data: {
+                            isLoggedIn: true,
+                            username: data.user.name,
+                            email: data.user.email,
+                            token: data.user_access_token,
+                            mobile: data.user.mobile,
+                            spotLength: data.spot_length ? data.spot_length : 0
+                        },
+                    })
+                );
+            } else {
+                localStorage.clear();
+                setError(error);
+                setLoading(false);
+                return;
+            }
+        } catch (error) {
+            setLoading(false);
+            console.log("Error:", error);
+            if (error.response && error.response.status === 409) {
+                setError("Email already exists. Please use a different email.");
+            } else {
+                setError("Internal server error. Please try again later.");
+            }
+        } 
+    }
 
     const ownerSubmit = async (name, email, pass) => {
         try {
@@ -149,7 +209,7 @@ const UserLogin = () => {
 
     return (
         <>
-            <Header />
+            {/* <Header /> */}
             <BreadCrumbs title={"Login"} />
             <div className="loginOuter">
                 <div className="container">

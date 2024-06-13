@@ -69,7 +69,7 @@ const AddParkingSpots = () => {
       const formData = new FormData();
       // Append form data
       formData.append("slot_name", data.slot_name);
-      formData.append("available_time", data.available_time);
+      formData.append("available_time", "24/7");
       formData.append("google_map", data.google_map);
       formData.append("latitude", data.latitude);
       formData.append("longitude", data.longitude);
@@ -173,13 +173,13 @@ const AddParkingSpots = () => {
 
   return (
     <div>
-      <Header />
+      {/* <Header /> */}
       <BreadCrumbs title="Add Slot" />
       <div className="loginOuter afterownerLogin">
         <div className="container">
           <div className="dashboardList">
             <div className="row">
-              <div className="col-lg-7 col-md-12 mx-auto">
+              <div className="col-lg-8 col-md-12 mx-auto">
                 <div className="card mb-4 p-5">
                   <div className="card-body corporateMenu">
                     <form onSubmit={handleSubmit(onSubmit)}>
@@ -207,69 +207,13 @@ const AddParkingSpots = () => {
                         </div>
                       </div>
 
-                      {/* Available Time */}
-                      <div className="form-group row">
-                        <label
-                          htmlFor="available_time"
-                          className="control-label col-xl-5 col-lg-5 col-md-6 col-sm-6 col-xs-12"
-                        >
-                          Available Time
-                        </label>
-                        <div className="col-xl-7 col-lg-7 col-md-6 col-sm-6 col-xs-12">
-                          <select
-                            id="available_time"
-                            name="available_time"
-                            {...register("available_time", {
-                              required: true,
-                            })}
-                            className="form-control"
-                          >
-                            <option value="24/7">24/7</option>
-                          </select>
-                          {errors?.available_time && (
-                            <span className="text-danger">
-                              This field is required
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Photos */}
-                      <div className="form-group row">
-                        <label
-                          htmlFor="photos"
-                          className="control-label col-xl-5 col-lg-5 col-md-6 col-sm-6 col-xs-12"
-                        >
-                          Photos
-                        </label>
-                        <div className="col-xl-7 col-lg-7 col-md-6 col-sm-6 col-xs-12">
-                          <input
-                            type="file"
-                            id="photos"
-                            multiple
-                            name="photos"
-                            accept="image/*"
-                            
-                            {...register("photos", { required: true, message: fileError })}
-                            className="form-control"
-                            onChange={handleFileChange}
-                          />
-                          {errors?.photos && (
-                            <span className="text-danger">
-                             {/* {fileError || 'This field is required'}  */}
-                             {errors?.photos?.message == '' ? 'This field is required' : errors?.photos?.message }
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
                       {/* Google Map */}
                       <div className="form-group row">
                         <label
                           htmlFor="google_map"
                           className="control-label col-xl-5 col-lg-5 col-md-6 col-sm-6 col-xs-12"
                         >
-                          Google Map
+                          Address
                         </label>
                         <div className="col-xl-7 col-lg-7 col-md-6 col-sm-6 col-xs-12">
                           <GooglePlacesAutocomplete
@@ -290,7 +234,7 @@ const AddParkingSpots = () => {
                       </div>
 
                       {/* Latitude */}
-                      <div className="form-group row">
+                      {/* <div className="form-group row">
                         <label
                           htmlFor="latitude"
                           className="control-label col-xl-5 col-lg-5 col-md-6 col-sm-6 col-xs-12"
@@ -314,10 +258,10 @@ const AddParkingSpots = () => {
                             </span>
                           )}
                         </div>
-                      </div>
+                      </div> */}
 
                       {/* Longitude */}
-                      <div className="form-group row">
+                      {/* <div className="form-group row">
                         <label
                           htmlFor="longitude"
                           className="control-label col-xl-5 col-lg-5 col-md-6 col-sm-6 col-xs-12"
@@ -341,35 +285,9 @@ const AddParkingSpots = () => {
                             </span>
                           )}
                         </div>
-                      </div>
-
-                      {/* Available Slots */}
-                      {/* <div className="form-group row">
-                        <label
-                          htmlFor="available_slots"
-                          className="control-label col-xl-5 col-lg-5 col-md-6 col-sm-6 col-xs-12"
-                        >
-                          Available Slots
-                        </label>
-                        <div className="col-xl-7 col-lg-7 col-md-6 col-sm-6 col-xs-12">
-                          <input
-                            type="text"
-                            id="available_slots"
-                            name="available_slots"
-                            {...register("available_slots", {
-                              required: "Invalid numeric format",
-                              validate: (value) =>
-                                !isNaN(value) || "Invalid numeric format",
-                            })}
-                            className="form-control"
-                          />
-                          {errors?.available_slots && (
-                            <span className="text-danger">
-                              Invalid numeric format
-                            </span>
-                          )}
-                        </div>
                       </div> */}
+
+
 
                       {/* From Date */}
                       <div className="form-group row">
@@ -377,7 +295,7 @@ const AddParkingSpots = () => {
                           htmlFor="from_date_time"
                           className="control-label col-xl-5 col-lg-5 col-md-6 col-sm-6 col-xs-12"
                         >
-                          From Date
+                          Available From Date
                         </label>
                         <div className="col-xl-7 col-lg-7 col-md-6 col-sm-6 col-xs-12">
                           <DatePicker
@@ -414,7 +332,7 @@ const AddParkingSpots = () => {
                           htmlFor="to_date_time"
                           className="control-label col-xl-5 col-lg-5 col-md-6 col-sm-6 col-xs-12"
                         >
-                          To Date
+                          Available To Date
                         </label>
                         <div className="col-xl-7 col-lg-7 col-md-6 col-sm-6 col-xs-12">
                           <DatePicker
@@ -474,7 +392,7 @@ const AddParkingSpots = () => {
                           htmlFor="vehicle_fees"
                           className="control-label col-xl-5 col-lg-5 col-md-6 col-sm-6 col-xs-12"
                         >
-                          Vehicle Fees
+                          Fees
                         </label>
                         <div className="col-xl-7 col-lg-7 col-md-6 col-sm-6 col-xs-12">
                           <input
@@ -511,6 +429,90 @@ const AddParkingSpots = () => {
                           {errors?.nearby_places && (
                             <span className="text-danger">
                               This field is required
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Available Time */}
+                      {/* <div className="form-group row">
+                        <label
+                          htmlFor="available_time"
+                          className="control-label col-xl-5 col-lg-5 col-md-6 col-sm-6 col-xs-12"
+                        >
+                          Parking Spots Available
+                        </label>
+                        <div className="col-xl-7 col-lg-7 col-md-6 col-sm-6 col-xs-12">
+                          <select
+                            id="available_time"
+                            name="available_time"
+                            {...register("available_time", {
+                              required: true,
+                            })}
+                            className="form-control"
+                          >
+                            <option value="24/7">24/7</option>
+                          </select>
+                          {errors?.available_time && (
+                            <span className="text-danger">
+                              This field is required
+                            </span>
+                          )}
+                        </div>
+                      </div> */}
+
+                      {/* Available Slots */}
+                      {/* <div className="form-group row">
+                        <label
+                          htmlFor="available_slots"
+                          className="control-label col-xl-5 col-lg-5 col-md-6 col-sm-6 col-xs-12"
+                        >
+                          Parking Spots Available
+                        </label>
+                        <div className="col-xl-7 col-lg-7 col-md-6 col-sm-6 col-xs-12">
+                          <input
+                            type="text"
+                            id="available_slots"
+                            name="available_slots"
+                            {...register("available_slots", {
+                              required: "Invalid numeric format",
+                              validate: (value) =>
+                                !isNaN(value) || "Invalid numeric format",
+                            })}
+                            className="form-control"
+                          />
+                          {errors?.available_slots && (
+                            <span className="text-danger">
+                              Invalid numeric format
+                            </span>
+                          )}
+                        </div>
+                      </div> */}
+
+                      {/* Photos */}
+                      <div className="form-group row">
+                        <label
+                          htmlFor="photos"
+                          className="control-label col-xl-5 col-lg-5 col-md-6 col-sm-6 col-xs-12"
+                        >
+                          Photos
+                        </label>
+                        <div className="col-xl-7 col-lg-7 col-md-6 col-sm-6 col-xs-12">
+                          <input
+                            type="file"
+                            id="photos"
+                            multiple
+                            name="photos"
+                            accept="image/*"
+
+                            {...register("photos", { required: true, message: fileError })}
+                            className="form-control"
+                            onChange={handleFileChange}
+                          />
+                          {errors?.photos && (
+                            <span className="text-danger">
+                              {/* {fileError || 'This field is required'}  */}
+                              {errors?.photos?.message == '' ? 'This field is required' : errors?.photos?.message}
                             </span>
                           )}
                         </div>

@@ -8,7 +8,7 @@ import ParkingPlace from "../../components/ParkingPlace";
 function HomePage() {
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <Slider />
       {/* <Search title={"Find a parking place"} /> */}
       <ParkingPlace title="Find a parking place" />

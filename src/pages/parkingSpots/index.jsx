@@ -81,7 +81,7 @@ const ParkingSpots = () => {
 
     return (
         <>
-            <Header />
+            {/* <Header /> */}
             {/* <div className="parking-slot-header">
                 <NavLink className="parking-slots active" to="/my-parking-spot">
                     My Driveways

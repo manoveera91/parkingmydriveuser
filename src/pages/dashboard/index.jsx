@@ -14,8 +14,8 @@ const Dashboard = () => {
 
     return (
       <>
-        <Header />
-        <BreadCrumbs title="Dashboard" />
+        {/* <Header /> */}
+        <BreadCrumbs title="Welcome to Park In My Driveway" />
         <div className="loginOuter afterownerLogin">
           <div className="container">
             <div className="dashboardList">
@@ -26,7 +26,7 @@ const Dashboard = () => {
                       <div className="row no-gutters align-items-center">
                         <div className="mr-2 col">
                           <div className="text-center text-xs font-weight-bold text-primary">
-                            <h3>Welcome to Park In My Driveway</h3>
+                            <h3>Start Your Driveway</h3>
                             <div className="d-flex justify-content-center gap-8">
                             <button
                               className="btn btn-primary btn-block"

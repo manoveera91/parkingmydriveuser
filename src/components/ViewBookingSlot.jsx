@@ -12,7 +12,7 @@ const ViewBookingSlot = () => {
   }, [state]);
   return (
     <div>
-      <Header />
+      {/* <Header /> */}
       <BreadCrumbs title="View Slot Bookings" />
       <div className="loginOuter afterownerLogin">
         <div className="container">

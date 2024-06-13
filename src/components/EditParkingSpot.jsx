@@ -69,7 +69,6 @@ const EditParkingSpot = () => {
   }, [errors]);
 
   const onSubmit = async (formData) => {
-    debugger
     console.log("Edit formdata", formData);
     // Handle form submission logic here
     try {
@@ -117,7 +116,7 @@ const EditParkingSpot = () => {
 
   return (
     <div>
-      <Header />
+      {/* <Header /> */}
       <BreadCrumbs title="Edit Parking Slot" />
 
       <div className="loginOuter afterownerLogin">
@@ -137,6 +136,8 @@ const EditParkingSpot = () => {
                     <form onSubmit={handleSubmit(onSubmit)}>
                       <div className="row">
                         <div className="col-lg-9 col-md-12 mx-auto mt-3">
+
+                          {/* Slot Name */}
                           <div className="form-group row">
                             <label className="control-label col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12">
                               Slot Name
@@ -159,7 +160,197 @@ const EditParkingSpot = () => {
                               )}
                             </div>
                           </div>
+
+                          {/* Google map */}
                           <div className="form-group row">
+                            <label className="control-label col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                              Address
+                            </label>
+                            <div className="col-xl-5 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                              <span>{data?.google_map}</span>
+                              <GooglePlacesAutocomplete
+                                apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
+                                selectProps={{
+                                  // apiValue,
+                                  value: apiValue,
+                                  onChange: setApiValue,
+                                }}
+                                {...register("google_map", {
+                                  required: true,
+                                })}
+                              />
+                              {errors?.google_map && (
+                                <span className="text-danger">
+                                  This field is required
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Latitude */}
+                          {/* <div className="form-group row">
+                            <label className="control-label col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                              Latitude
+                            </label>
+                            <div className="col-xl-5 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                              <input
+                                type="text"
+                                id="email"
+                                name="email"
+                                className="form-control "
+                                disabled
+                                defaultValue={data?.latitude}
+                                {...register("latitude", {
+                                  required: true,
+                                })}
+                              />
+                              {errors?.latitude && (
+                                <span className="text-danger">
+                                  This field is required
+                                </span>
+                              )}
+                            </div>
+                          </div> */}
+
+                          {/* Longitude */}
+                          {/* <div className="form-group row">
+                            <label className="control-label col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                              Longitude
+                            </label>
+                            <div className="col-xl-5 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                              <input
+                                type="text"
+                                id="email"
+                                name="email"
+                                className="form-control "
+                                disabled
+                                defaultValue={data?.longitude}
+                                {...register("longitude", {
+                                  required: true,
+                                })}
+                              />
+                              {errors?.longitude && (
+                                <span className="text-danger">
+                                  This field is required
+                                </span>
+                              )}
+                            </div>
+                          </div> */}
+
+                          {/* From Date */}
+                          <div className="form-group row">
+                            <label
+                              htmlFor="from_date_time"
+                              className="control-label col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12"
+                            >
+                              Available From Date
+                            </label>
+                            <div className="col-xl-5 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                              <DatePicker
+                                minDate={new Date()}
+                                selected={fromDate} // Pass the selected date here
+                                name="from_date_time"
+                                required
+                                customInput={<CustomDatePickerInput />}
+                                onChange={(date) => {
+                                  setFromDate(date);
+                                  setValue("from_date_time", formatDate(date));
+                                }}
+                              // {...register("from_date_time", {
+                              //   required: "From Date is required",
+                              // })}
+                              // {...register("from_date_time", {
+                              //   required: true,
+                              // })}
+                              />
+                              {errors?.from_date_time && (
+                                <span className="text-danger">
+                                  This field is required
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* To Date */}
+                          <div className="form-group row">
+                            <label
+                              htmlFor="to_date_time"
+                              className="control-label col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12"
+                            >
+                              Available To Date
+                            </label>
+                            <div className="col-xl-5 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                              <DatePicker
+                                minDate={new Date()}
+                                selected={toDate} // Pass the selected date here
+                                name="to_date_time"
+                                required
+                                customInput={<CustomDatePickerInput />}
+                                defaultValue={data?.to_date_time}
+                                onChange={(date) => {
+                                  setToDate(date);
+                                  setValue("to_date_time", formatDate(date));
+                                }}
+                              // {...register("to_date_time", {
+                              //   required: true,
+                              // })}
+                              />
+                              {errors?.to_date_time && (
+                                <span className="text-danger">
+                                  This field is required
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Vehicle Fees */}
+                          <div className="form-group row">
+                            <label className="control-label col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                              Fees
+                            </label>
+                            <div className="col-xl-5 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                              <input
+                                type="text"
+                                className="form-control "
+                                defaultValue={data?.vehicle_fees}
+                                {...register("vehicle_fees", {
+                                  required: true,
+                                })}
+                              />
+                              {errors?.vehicle_fees && (
+                                <span className="text-danger">
+                                  This field is required
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Comment */}
+                          <div className="form-group row">
+                            <label className="control-label col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                              Comment
+                            </label>
+                            <div className="col-xl-5 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                              <input
+                                type="text"
+                                id="email"
+                                name="email"
+                                className="form-control "
+                                defaultValue={data?.nearby_places}
+                                {...register("nearby_places", {
+                                  required: true,
+                                })}
+                              />
+                              {errors?.nearby_places && (
+                                <span className="text-danger">
+                                  This field is required
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Available Time */}
+                          {/* <div className="form-group row">
                             <label className="control-label col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12">
                               Available Time
                             </label>
@@ -182,7 +373,7 @@ const EditParkingSpot = () => {
                                 </span>
                               )}
                             </div>
-                          </div>
+                          </div> */}
                           {/* <div className="form-group row">
                               <label className="control-label col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12">
                                 Photos
@@ -207,82 +398,11 @@ const EditParkingSpot = () => {
                               </div>
                             </div> */}
 
-                          <div className="form-group row">
-                            <label className="control-label col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                              Google map
-                            </label>
-                            <div className="col-xl-5 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                              <span>{data?.google_map}</span>
-                              <GooglePlacesAutocomplete
-                                apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
-                                selectProps={{
-                                  // apiValue,
-                                  value: apiValue,
-                                  onChange: setApiValue,
-                                }}
-                                {...register("google_map", {
-                                  required: true,
-                                })}
-                              />
-                              {errors?.google_map && (
-                                <span className="text-danger">
-                                  This field is required
-                                </span>
-                              )}
-                            </div>
-                          </div>
 
+                          {/* Available Slots */}
                           <div className="form-group row">
                             <label className="control-label col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                              Latitude
-                            </label>
-                            <div className="col-xl-5 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                              <input
-                                type="text"
-                                id="email"
-                                name="email"
-                                className="form-control "
-                                disabled
-                                defaultValue={data?.latitude}
-                                {...register("latitude", {
-                                  required: true,
-                                })}
-                              />
-                              {errors?.latitude && (
-                                <span className="text-danger">
-                                  This field is required
-                                </span>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="form-group row">
-                            <label className="control-label col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                              Longitude
-                            </label>
-                            <div className="col-xl-5 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                              <input
-                                type="text"
-                                id="email"
-                                name="email"
-                                className="form-control "
-                                disabled
-                                defaultValue={data?.longitude}
-                                {...register("longitude", {
-                                  required: true,
-                                })}
-                              />
-                              {errors?.longitude && (
-                                <span className="text-danger">
-                                  This field is required
-                                </span>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="form-group row">
-                            <label className="control-label col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                              Available Slots
+                              Parking Slots Available
                             </label>
                             <div className="col-xl-5 col-lg-6 col-md-6 col-sm-6 col-xs-12">
                               <input
@@ -302,114 +422,7 @@ const EditParkingSpot = () => {
                               )}
                             </div>
                           </div>
-                          {/* From Date */}
-                          <div className="form-group row">
-                            <label
-                              htmlFor="from_date_time"
-                              className="control-label col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12"
-                            >
-                              From Date
-                            </label>
-                            <div className="col-xl-5 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                              <DatePicker
-                                minDate={new Date()}
-                                selected={fromDate} // Pass the selected date here
-                                name="from_date_time"
-                                required
-                                customInput={<CustomDatePickerInput />}
-                                onChange={(date) => {
-                                  setFromDate(date);
-                                  setValue("from_date_time", formatDate(date));
-                                }}
-                                // {...register("from_date_time", {
-                                //   required: "From Date is required",
-                                // })}
-                                // {...register("from_date_time", {
-                                //   required: true,
-                                // })}
-                              />
-                              {errors?.from_date_time && (
-                                <span className="text-danger">
-                                  This field is required
-                                </span>
-                              )}
-                            </div>
-                          </div>
 
-                          {/* To Date */}
-                          <div className="form-group row">
-                            <label
-                              htmlFor="to_date_time"
-                              className="control-label col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12"
-                            >
-                              To Date
-                            </label>
-                            <div className="col-xl-5 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                              <DatePicker
-                                minDate={new Date()}
-                                selected={toDate} // Pass the selected date here
-                                name="to_date_time"
-                                required
-                                customInput={<CustomDatePickerInput />}
-                                defaultValue={data?.to_date_time}
-                                onChange={(date) => {
-                                  setToDate(date);
-                                  setValue("to_date_time", formatDate(date));
-                                }}
-                                // {...register("to_date_time", {
-                                //   required: true,
-                                // })}
-                              />
-                              {errors?.to_date_time && (
-                                <span className="text-danger">
-                                  This field is required
-                                </span>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="form-group row">
-                            <label className="control-label col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                              Vehicle Fees
-                            </label>
-                            <div className="col-xl-5 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                              <input
-                                type="text"
-                                className="form-control "
-                                defaultValue={data?.vehicle_fees}
-                                {...register("vehicle_fees", {
-                                  required: true,
-                                })}
-                              />
-                              {errors?.vehicle_fees && (
-                                <span className="text-danger">
-                                  This field is required
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <div className="form-group row">
-                            <label className="control-label col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                              Comment
-                            </label>
-                            <div className="col-xl-5 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                              <input
-                                type="text"
-                                id="email"
-                                name="email"
-                                className="form-control "
-                                defaultValue={data?.nearby_places}
-                                {...register("nearby_places", {
-                                  required: true,
-                                })}
-                              />
-                              {errors?.nearby_places && (
-                                <span className="text-danger">
-                                  This field is required
-                                </span>
-                              )}
-                            </div>
-                          </div>
                         </div>
                       </div>
                       <div className="row">
@@ -425,7 +438,7 @@ const EditParkingSpot = () => {
                                     <Loader />
                                   </div>
                                 ) : (
-                                  "Edit"
+                                  "Save"
                                 )}
                               </button>
                             </div>

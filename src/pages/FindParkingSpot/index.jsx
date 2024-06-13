@@ -20,11 +20,17 @@ const FindParkingSpot = () => {
   const [apiValue, setApiValue] = useState(null);
   const [latValue, setLatValue] = useState("");
   const [lngValue, setLngValue] = useState("");
+  const [fromHours, setfromHours] = useState([]);
+  const [toHours, setToHours] = useState([]);
   const [loading, setLoading] = useState(false);
+  const currentDate = new Date();
+  const fromDate = new Date(currentDate);
+  const toDate = new Date(currentDate);
+  fromDate.setHours(fromDate.getHours() + 1);
+  toDate.setHours(toDate.getHours() + 2);
   const [formData, setFormData] = useState({
-    from: new Date(),
-    to: new Date(),
-
+    from: fromDate,
+    to: toDate,
     selectedFromTime: "",
     selectedToTime: "",
     event: "",
@@ -32,6 +38,53 @@ const FindParkingSpot = () => {
     vehicle_type: "",
   });
   console.log("form data", formData);
+
+  useEffect(() => {
+    const currentDate = new Date();
+    const fromDate = new Date(currentDate);
+    const toDate = new Date(currentDate);
+    fromDate.setHours(fromDate.getHours() + 1);
+    toDate.setHours(fromDate.getHours() + 2);
+    setFormData({ ...formData, from: fromDate, to: toDate });
+    setfromHours(generateFutureTimeList(new Date(), 'from'));
+    setToHours(generateFutureTimeList(new Date(), 'to'));
+  }, []); // Empty dependency array means this runs once when the component mounts
+
+
+  const generateFutureTimeList = (date, type) => {
+    const times = [];
+    const currentDateFormat = convertDateTimeFormat(new Date());
+    const dateFormat = convertDateTimeFormat(date);
+    // Round to the next hour
+    const now = new Date(date);
+    if ((currentDateFormat == dateFormat) && type == 'from' ) {
+      now.setHours(now.getHours() + 1);
+    }
+    now.setMinutes(0, 0, 0);
+    const currentHour = now.getHours();
+
+    for (let i = currentHour; i < 24; i++) {
+      let hours = i;
+      const minutes = '00';
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+
+      hours = hours % 12;
+      hours = hours ? hours : 12; // the hour '0' should be '12'
+      const hoursStr = hours < 10 ? '0' + hours : hours;
+
+      const timeStr = hoursStr + ':' + minutes + ' ' + ampm;
+      times.push(timeStr);
+    }
+    // if (date > formData.to) {
+    if (type == 'from') {
+      setFormData({ ...formData, from: date, to: date, selectedFromTime: times[0], selectedToTime: times[1] });
+    } else if (type == 'to') {
+      setFormData({ ...formData, to: date, selectedToTime: times[0] });
+    }
+
+    console.log(formData);
+    return times;
+  };
 
   const roundOffStartTime = () => {
     const now = new Date();
@@ -44,7 +97,7 @@ const FindParkingSpot = () => {
       now.setMinutes(0);
     }
 
-    const formattedTime = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    const formattedTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     setFormData(prevState => ({
       ...prevState,
       selectedFromTime: handleFromTimeChange(formattedTime)
@@ -52,7 +105,7 @@ const FindParkingSpot = () => {
   }
 
   useEffect(() => {
-      setApiValue(formData.destination);
+    setApiValue(formData.destination);
   }, [formData.destination]);
 
   const [error, setError] = useState({
@@ -194,30 +247,30 @@ const FindParkingSpot = () => {
     if (status === 200) {
       const storedLatitude = localStorage.getItem("latitude");
       const storedLongitude = localStorage.getItem("longitude");
-          // Example usage
-    const baseLat = storedLatitude; // Base latitude
-    const baseLng = storedLongitude; // Base longitude
-    const maxDistance = 10; // Maximum distance in km
-    const spotsArray = Object.values(data);
-    const newPoints = spotsArray.map((item, index) => ({
-      latitude: parseFloat(item.latitude),
-      longitude: parseFloat(item.longitude),
-    }));
+      // Example usage
+      const baseLat = storedLatitude; // Base latitude
+      const baseLng = storedLongitude; // Base longitude
+      const maxDistance = 10; // Maximum distance in km
+      const spotsArray = Object.values(data);
+      const newPoints = spotsArray.map((item, index) => ({
+        latitude: parseFloat(item.latitude),
+        longitude: parseFloat(item.longitude),
+      }));
 
-    // Filter nearby points
-    const nearbyPoints = filterNearbyPoints(
-      baseLat,
-      baseLng,
-      newPoints,
-      maxDistance
-    );
-   
-    console.log("vc Nearby Points:", nearbyPoints);
-    if (nearbyPoints.length > 0) {
-      navigate("/list-parking-spot");
-    } else {
-      setNearByPlaceLength(true);
-    }
+      // Filter nearby points
+      const nearbyPoints = filterNearbyPoints(
+        baseLat,
+        baseLng,
+        newPoints,
+        maxDistance
+      );
+
+      console.log("vc Nearby Points:", nearbyPoints);
+      if (nearbyPoints.length > 0) {
+        navigate("/list-parking-spot");
+      } else {
+        setNearByPlaceLength(true);
+      }
     }
 
     // if (location.pathname === "/listing") {
@@ -246,12 +299,30 @@ const FindParkingSpot = () => {
   );
 
   const handleFromDateChange = (date) => {
-    if (date > formData.to) {
-      setFormData({ ...formData, from: date, to: date });
+    const currentDateFormat = convertDateTimeFormat(new Date());
+    const dateFormat = convertDateTimeFormat(date);
+    if (currentDateFormat == dateFormat) {
+      setfromHours(generateFutureTimeList(new Date(), 'from'));
+      setToHours(generateFutureTimeList(new Date(), 'from'));
     } else {
-      setFormData({ ...formData, from: date });
+      date.setHours(0, 0, 0, 0);
+      setfromHours(generateFutureTimeList(date, 'from'));
+      setToHours(generateFutureTimeList(date, 'from'));
     }
   };
+
+  const convertDateTimeFormat = (date) => {
+    const currentDate = new Date();
+
+    // Extract the year, month, and day
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    // Convert to string in the format YYYY-MM-DD
+    const currentDateString = `${year}-${month}-${day}`;
+    return currentDateString;
+  }
 
   const handleFromTimeChange = (time) => {
     console.log("time from", time);
@@ -270,37 +341,83 @@ const FindParkingSpot = () => {
     } else if (toTimeHour === 13) {
       // If the hour becomes 13 (after noon), reset it to 1 and toggle AM/PM
       toTimeHour = 1;
-      toAmPm = ampm === "AM" ? "PM" : "AM";
+      // toAmPm = ampm === "AM" ? "PM" : "AM";
     }
 
     // Format the "To" time
     const formattedToTime = `${toTimeHour
       .toString()
       .padStart(2, "0")}:00 ${toAmPm}`;
-
+    if (time == '11:00 PM') {
+      const tomorrow = new Date(formData.from);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+      setToHours(generateFutureTimeList(tomorrow, 'to'));
+      setFormData({
+        ...formData,
+        to: tomorrow,
+        selectedFromTime: time,
+        selectedToTime: formattedToTime,
+      });
+    } else {
+      const currentDateFormat = convertDateTimeFormat(formData.from);
+      const dateFormat = convertDateTimeFormat(formData.to);
+      if (currentDateFormat == dateFormat) {
+        const hours = generateFutureTimeList(formData.to, 'to');
+        const fromTimeIndex = hours.indexOf(time);
+        const filteredToHours = fromTimeIndex !== -1 ? hours.slice(fromTimeIndex + 1) : hours;
+        setToHours(filteredToHours);
+        setFormData({
+          ...formData,
+          selectedFromTime: time,
+          selectedToTime: formattedToTime,
+        });
+      } else {
+        setFormData({
+          ...formData,
+          selectedFromTime: time,
+          selectedToTime: toHours[0],
+        });
+      }
+    }
     // Update the form data with the new "From" and "To" times
-    setFormData({
-      ...formData,
-      selectedFromTime: time,
-      selectedToTime: formattedToTime,
-    });
+
   };
 
   const handleToDateChange = (date) => {
-    if (date < formData.from) {
-      setFormData({ ...formData, to: formData.from });
+    // if (date < formData.from) {
+    //   setFormData({ ...formData, to: formData.from });
+    // } else {
+    //   setFormData({ ...formData, to: date });
+    // }
+    const currentDateFormat = convertDateTimeFormat(new Date());
+    const dateFormat = convertDateTimeFormat(date);
+    if (currentDateFormat == dateFormat) {
+      setToHours(generateFutureTimeList(new Date(), 'to'));
     } else {
-      setFormData({ ...formData, to: date });
+      date.setHours(0, 0, 0, 0);
+      setToHours(generateFutureTimeList(date, 'to'));
     }
+
   };
+
+  const minToDate = () => {
+    if (formData.selectedFromTime == '11:00 PM') {
+      const ddd = new Date(formData.from);
+      let nextDate = new Date(ddd);
+      return nextDate.setDate(currentDate.getDate() + 1);
+    } else {
+      return new Date(formData.from);
+    }
+  }
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <BreadCrumbs title={"Find A Parking Spot"} />
       <div className="loginOuter">
-      { nearByPlaceLength && (
-      <p className="no-spot-found">No spots found for the location. Please find more...</p>
+        {nearByPlaceLength && (
+          <p className="no-spot-found">No spots found for the location. Please find more...</p>
         )}
         <div className="container">
           <form onSubmit={onSubmit}>
@@ -341,9 +458,9 @@ const FindParkingSpot = () => {
                               selected={formData.from}
                               customInput={<CustomDatePickerInput />}
                               onChange={handleFromDateChange}
-                              // onChange={
-                              //   (date) => onChange("from", date)
-                              //    }
+                            // onChange={
+                            //   (date) => onChange("from", date)
+                            //    }
                             />
                             <select
                               className="form-control style-2"
@@ -351,22 +468,34 @@ const FindParkingSpot = () => {
                               onChange={(e) =>
                                 handleFromTimeChange(e.target.value)
                               }
-                              // onChange={(e) =>
-                              //   onChange("selectedFromTime", e.target.value)
-                              // }
+                            // onChange={(e) =>
+                            //   onChange("selectedFromTime", e.target.value)
+                            // }
                             >
                               {/* Populate options for time selection */}
-                              {Array.from({ length: 24 }, (_, index) => {
+                              {/* {Array.from({ length: 24 }, (_, index) => {
                                 const hour = index % 12 || 12; // Get hour in 12-hour format
                                 const ampm = index < 12 ? "AM" : "PM"; // Determine AM or PM
                                 const formattedHour = ("0" + hour).slice(-2); // Ensure double-digit formatting
-                                const formattedTime = `${formattedHour}:00 ${ampm}`; // Concatenate hour and AM/PM
+                                const forTime = `${formattedHour}:00 ${ampm}`;
+                                const formattedTime = fromHours.filter((item) => {
+                                return item === forTime
+                                });
+                                // const formattedTime = `${formattedHour}:00 ${ampm}`; // Concatenate hour and AM/PM
                                 return (
                                   <option key={index} value={formattedTime}>
                                     {formattedTime}
                                   </option>
                                 );
-                              })}
+                              })} */}
+                              {fromHours.map((time, index) => {
+                                return (
+                                  <option key={index} value={time}>
+                                    {time}
+                                  </option>
+                                );
+                              }
+                              )}
                             </select>
                           </div>
                           {error.from && (
@@ -385,11 +514,11 @@ const FindParkingSpot = () => {
                         <div className="input-group date" id="datepicker1">
                           <div className="picker">
                             <DatePicker
-                              minDate={new Date(formData.from)}
+                              minDate={minToDate()}
                               selected={formData.to}
                               customInput={<CustomDatePickerInput />}
                               onChange={handleToDateChange}
-                              // onChange={(date) => onChange("to", date)}
+                            // onChange={(date) => onChange("to", date)}
                             />
                             <select
                               className="form-control style-2"
@@ -402,7 +531,7 @@ const FindParkingSpot = () => {
                               }
                             >
                               {/* Populate options for time selection */}
-                              {Array.from({ length: 24 }, (_, index) => {
+                              {/* {Array.from({ length: 24 }, (_, index) => {
                                 const hour = index % 12 || 12; // Get hour in 12-hour format
                                 const ampm = index < 12 ? "AM" : "PM"; // Determine AM or PM
                                 const formattedHour = ("0" + hour).slice(-2); // Ensure double-digit formatting
@@ -412,7 +541,12 @@ const FindParkingSpot = () => {
                                     {formattedTime}
                                   </option>
                                 );
-                              })}
+                              })} */}
+                              {toHours.map((time, index) => (
+                                <option key={index} value={time}>
+                                  {time}
+                                </option>
+                              ))}
                             </select>
                           </div>
                           {error.to && (
@@ -430,14 +564,14 @@ const FindParkingSpot = () => {
                       <div className="col-md-12">
                         <div className="d-grid">
                           <button type="submit" className="btn btn-primary">
-                          {loading ? (
-                                <div className="loader">
-                                  <Loader />
-                                </div>
-                              ) : (
-                                "Find Parking Slots"
-                              )}
-                            
+                            {loading ? (
+                              <div className="loader">
+                                <Loader />
+                              </div>
+                            ) : (
+                              "Find Parking Slots"
+                            )}
+
                           </button>
                         </div>
                       </div>
