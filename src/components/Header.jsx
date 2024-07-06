@@ -67,7 +67,8 @@ const Header = forwardRef((props, ref) => {
           email: "",
           token: "",
           spotLength: 0,
-          mobile: ''
+          mobile: '',
+          auth_owner_id: 0
         },
       })
     );

@@ -11,10 +11,13 @@ import Loader from "./Loader";
 import { getLatLong } from "../utils/GoogleApi";
 import { toast } from "react-toastify";
 import OwnerAxiosClient from "../axios/OwnerAxiosClient";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { saveUser } from "../redux/userSlice";
 
 const AddParkingSpots = () => {
+  const userRedux = useSelector((state) => {
+  return state.user.value;
+});
   const {
     register,
     handleSubmit,
@@ -79,11 +82,11 @@ const AddParkingSpots = () => {
       formData.append("nearby_places", data.nearby_places);
       formData.append("vehicle_types", data.vehicle_types);
       formData.append("vehicle_fees", data.vehicle_fees);
+      formData.append("auth_owner_id", userRedux.auth_owner_id);
       // Append image files
       for (let i = 0; i < data.photos.length; i++) {
         formData.append("photos[]", data.photos[i]);
       }
-
       const response = await OwnerAxiosClient.post(
         "/api/owner-parking-spots",
         formData,
@@ -116,8 +119,8 @@ const AddParkingSpots = () => {
       if (response?.error?.status === 422) {
         setError('photos', { type: 'required', message: 'Invalid file type. Only image files are allowed.' });
       } else if (response.status !== 200 && response.status !== 201) {
-        console.log("backend error", response.data, response);
-        setBackendError("Internal server error");
+        if (response?.status === 409)
+        toast.error("Parking spot already exists");
       }
     } catch (error) {
       // toast.error("Something went wrong!");
@@ -221,6 +224,7 @@ const AddParkingSpots = () => {
                             selectProps={{
                               apiValue,
                               onChange: setApiValue,
+                              noOptionsMessage: () => null
                             }}
                             {...register("google_map", { required: true })}
                           />
@@ -396,7 +400,7 @@ const AddParkingSpots = () => {
                         </label>
                         <div className="col-xl-7 col-lg-7 col-md-6 col-sm-6 col-xs-12">
                           <input
-                            type="text"
+                            type="number"
                             id="vehicle_fees"
                             name="vehicle_fees"
                             {...register("vehicle_fees", { required: true })}

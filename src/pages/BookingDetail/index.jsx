@@ -11,8 +11,6 @@ import { useDispatch } from "react-redux";
 import { calculateTotalDuration, formatDateYear } from "../../utils/DateTime";
 import DatePicker from "react-datepicker";
 import { useSelector } from "react-redux";
-import { combineDateTime } from "../../utils/DateTime";
-import { toast } from "react-toastify";
 import {
   GoogleMap,
   InfoWindow,
@@ -26,20 +24,13 @@ const BookingDetail = () => {
   const params = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [btnLoading, setbtnLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [item, setItem] = useState(null);
   const [totalHours, setTotalHours] = useState(null);
   const [activeMarker, setActiveMarker] = useState(null);
   const [map, setMap] = useState(null); // To access map instance
   const [markers, setMarkers] = useState([]);
-  const [fromHours, setfromHours] = useState([]);
-  const [toHours, setToHours] = useState([]);
-  const currentDate = new Date();
-  const fromDate = new Date(currentDate);
-  const toDate = new Date(currentDate);
-  fromDate.setHours(fromDate.getHours() + 1);
-  toDate.setHours(toDate.getHours() + 2);
+
 
   const searchRedux = useSelector((state) => {
     return state.search.value;
@@ -50,8 +41,8 @@ const BookingDetail = () => {
   };
 
   const [formData, setFormData] = useState({
-    from: fromDate,
-    to: toDate,
+    from: new Date(),
+    to: new Date(),
     // from: "",
     // to: "",
 
@@ -87,53 +78,6 @@ const BookingDetail = () => {
       ...error,
       [name]: "",
     });
-  };
-
-  useEffect(() => {
-    const currentDate = new Date();
-    const fromDate = new Date(currentDate);
-    const toDate = new Date(currentDate);
-    fromDate.setHours(fromDate.getHours() + 1);
-    toDate.setHours(fromDate.getHours() + 2);
-    setFormData({ ...formData, from: fromDate, to: toDate });
-    setfromHours(generateFutureTimeList(new Date(), 'from'));
-    setToHours(generateFutureTimeList(new Date(), 'to'));
-  }, []); // Empty dependency array means this runs once when the component mounts
-
-
-  const generateFutureTimeList = (date, type) => {
-    const times = [];
-    const currentDateFormat = convertDateTimeFormat(new Date());
-    const dateFormat = convertDateTimeFormat(date);
-    // Round to the next hour
-    const now = new Date(date);
-    if ((currentDateFormat == dateFormat) && type == 'from') {
-      now.setHours(now.getHours() + 1);
-    }
-    now.setMinutes(0, 0, 0);
-    const currentHour = now.getHours();
-
-    for (let i = currentHour; i < 24; i++) {
-      let hours = i;
-      const minutes = '00';
-      const ampm = hours >= 12 ? 'PM' : 'AM';
-
-      hours = hours % 12;
-      hours = hours ? hours : 12; // the hour '0' should be '12'
-      const hoursStr = hours < 10 ? '0' + hours : hours;
-
-      const timeStr = hoursStr + ':' + minutes + ' ' + ampm;
-      times.push(timeStr);
-    }
-    // if (date > formData.to) {
-    if (type == 'from') {
-      setFormData({ ...formData, from: date, to: date, selectedFromTime: times[0], selectedToTime: times[1] });
-    } else if (type == 'to') {
-      setFormData({ ...formData, to: date, selectedToTime: times[0] });
-    }
-
-    console.log(formData);
-    return times;
   };
 
   useEffect(() => {
@@ -195,8 +139,7 @@ const BookingDetail = () => {
   //   }
   //   return inputs;
   // };
-  const handleSubmit = async (e) => {
-    setbtnLoading(true);
+  const handleSubmit = (e) => {
     let isoFormData;
     e.preventDefault();
     // Convert the from and to dates to ISO string format
@@ -224,6 +167,7 @@ const BookingDetail = () => {
     };
 
     console.log("hc formData", isoFormData);
+
     dispatch(
       searchSubmit({
         data: {
@@ -231,43 +175,8 @@ const BookingDetail = () => {
         },
       })
     );
-    if (params) {
-      try {
-        await AxiosClient.get("/sanctum/csrf-cookie");
-        const { data, status } = await AxiosClient.post(
-          "/api/booking-validate",
-          {
-            from_datetime: combineDateTime(
-              isoFormData.from,
-              isoFormData.selectedFromTime
-            ),
-            to_datetime: combineDateTime(
-              isoFormData.to,
-              isoFormData.selectedToTime
-            ),
-            id: params.id
-          }
-        );
-        if (status === 200) {
-          console.log(data);
-          if (data === 0) {
-            navigate(`/review-booking/${item.id}`);
-          } else {
-            setError({
-              ...error,
-              to: "Spot already booked for selected date time slot",
-            });
-            // toast.error("Spot already booked for the date time");
-          }
-        } else { }
-      } catch (error) {
-        setError("Internal Server Error");
-        console.error("Error fetching data from the API:", error);
-      } finally {
-        setbtnLoading(false);
-      }
-    }
 
+    navigate(`/review-booking/${item.id}`);
   };
   // const handleSubmit = (e) => {
   //   e.preventDefault();
@@ -342,7 +251,6 @@ const BookingDetail = () => {
   );
 
   useEffect(() => {
-    
     let totalDuration = 0;
     if (
       formData.from !== "" &&
@@ -378,7 +286,6 @@ const BookingDetail = () => {
 
   // Fit bounds to all markers whenever markers change
   useEffect(() => {
-    roundOffStartTime();
     if (map && markers.length > 0) {
       const bounds = new window.google.maps.LatLngBounds();
       markers.forEach(({ position }) => {
@@ -402,52 +309,15 @@ const BookingDetail = () => {
     }
   }, [item]);
 
-  const roundOffStartTime = () => {
-    const now = new Date();
-    const minutes = now.getMinutes();
-
-    if (minutes > 0) {
-      now.setHours(now.getHours() + 1);
-      now.setMinutes(0);
-    } else {
-      now.setMinutes(0);
-    }
-
-    const formattedTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    setFormData(prevState => ({
-      ...prevState,
-      selectedFromTime: handleFromTimeChange(formattedTime)
-    }));
-  }
-
   const handleFromDateChange = (date) => {
-    const currentDateFormat = convertDateTimeFormat(new Date());
-    const dateFormat = convertDateTimeFormat(date);
-    if (currentDateFormat == dateFormat) {
-      setfromHours(generateFutureTimeList(new Date(), 'from'));
-      setToHours(generateFutureTimeList(new Date(), 'from'));
+    if (date > formData.to) {
+      setFormData({ ...formData, from: date, to: date });
     } else {
-      date.setHours(0, 0, 0, 0);
-      setfromHours(generateFutureTimeList(date, 'from'));
-      setToHours(generateFutureTimeList(date, 'from'));
+      setFormData({ ...formData, from: date });
     }
   };
 
-  const convertDateTimeFormat = (date) => {
-    const currentDate = new Date();
-
-    // Extract the year, month, and day
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-
-    // Convert to string in the format YYYY-MM-DD
-    const currentDateString = `${year}-${month}-${day}`;
-    return currentDateString;
-  }
-
   const handleFromTimeChange = (time) => {
-    debugger
     console.log("time from", time);
     // Parse time string to extract hour and AM/PM
     const hour = parseInt(time.split(":")[0]);
@@ -464,75 +334,29 @@ const BookingDetail = () => {
     } else if (toTimeHour === 13) {
       // If the hour becomes 13 (after noon), reset it to 1 and toggle AM/PM
       toTimeHour = 1;
-      // toAmPm = ampm === "AM" ? "PM" : "AM";
+      toAmPm = ampm === "AM" ? "PM" : "AM";
     }
 
     // Format the "To" time
     const formattedToTime = `${toTimeHour
       .toString()
       .padStart(2, "0")}:00 ${toAmPm}`;
-    if (time == '11:00 PM') {
-      const tomorrow = new Date(formData.from);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0);
-      setToHours(generateFutureTimeList(tomorrow, 'to'));
-      setFormData({
-        ...formData,
-        to: tomorrow,
-        selectedFromTime: time,
-        selectedToTime: formattedToTime,
-      });
-    } else {
-      const currentDateFormat = convertDateTimeFormat(formData.from);
-      const dateFormat = convertDateTimeFormat(formData.to);
-      if (currentDateFormat == dateFormat) {
-        const hours = generateFutureTimeList(formData.to, 'to');
-        const fromTimeIndex = hours.indexOf(time);
-        const filteredToHours = fromTimeIndex !== -1 ? hours.slice(fromTimeIndex + 1) : hours;
-        setToHours(filteredToHours);
-        setFormData({
-          ...formData,
-          selectedFromTime: time,
-          selectedToTime: formattedToTime,
-        });
-      } else {
-        setFormData({
-          ...formData,
-          selectedFromTime: time,
-          selectedToTime: toHours[0],
-        });
-      }
-    }
-    // Update the form data with the new "From" and "To" times
 
+    // Update the form data with the new "From" and "To" times
+    setFormData({
+      ...formData,
+      selectedFromTime: time,
+      selectedToTime: formattedToTime,
+    });
   };
 
   const handleToDateChange = (date) => {
-    // if (date < formData.from) {
-    //   setFormData({ ...formData, to: formData.from });
-    // } else {
-    //   setFormData({ ...formData, to: date });
-    // }
-    const currentDateFormat = convertDateTimeFormat(new Date());
-    const dateFormat = convertDateTimeFormat(date);
-    if (currentDateFormat == dateFormat) {
-      setToHours(generateFutureTimeList(new Date(), 'to'));
+    if (date < formData.from) {
+      setFormData({ ...formData, to: formData.from });
     } else {
-      date.setHours(0, 0, 0, 0);
-      setToHours(generateFutureTimeList(date, 'to'));
+      setFormData({ ...formData, to: date });
     }
-
   };
-
-  const minToDate = () => {
-    if (formData.selectedFromTime == '11:00 PM') {
-      const ddd = new Date(formData.from);
-      let nextDate = new Date(ddd);
-      return nextDate.setDate(currentDate.getDate() + 1);
-    } else {
-      return new Date(formData.from);
-    }
-  }
 
   return (
     <>
@@ -574,10 +398,11 @@ const BookingDetail = () => {
                                   item.photos.length > 0 &&
                                   item.photos[0].photo_path && (
                                     <img
-                                      src={`${import.meta.env.VITE_APP_BASE_URL
-                                        }/storage/${item.photos[0].photo_path.slice(
-                                          6
-                                        )}`}
+                                      src={`${
+                                        import.meta.env.VITE_APP_BASE_URL
+                                      }/storage/${item.photos[0].photo_path.slice(
+                                        6
+                                      )}`}
                                       className="img-fluid"
                                     />
                                   )}
@@ -667,9 +492,9 @@ const BookingDetail = () => {
                                   customInput={<CustomDatePickerInput />}
                                   onChange={handleFromDateChange}
 
-                                // onChange={(date) =>
-                                //   setFormData({ ...formData, from: date })
-                                // }
+                                  // onChange={(date) =>
+                                  //   setFormData({ ...formData, from: date })
+                                  // }
                                 />
                                 <select
                                   className="form-control style-2"
@@ -677,12 +502,12 @@ const BookingDetail = () => {
                                   onChange={(e) =>
                                     handleFromTimeChange(e.target.value)
                                   }
-                                // onChange={(e) =>
-                                //   onChange("selectedFromTime", e.target.value)
-                                // }
+                                  // onChange={(e) =>
+                                  //   onChange("selectedFromTime", e.target.value)
+                                  // }
                                 >
                                   {/* Populate options for time selection */}
-                                  {/* {Array.from({ length: 24 }, (_, index) => {
+                                  {Array.from({ length: 24 }, (_, index) => {
                                     const hour = index % 12 || 12; // Get hour in 12-hour format
                                     const ampm = index < 12 ? "AM" : "PM"; // Determine AM or PM
                                     const formattedHour = ("0" + hour).slice(
@@ -694,15 +519,7 @@ const BookingDetail = () => {
                                         {formattedTime}
                                       </option>
                                     );
-                                  })} */}
-                                  {fromHours.map((time, index) => {
-                                    return (
-                                      <option key={index} value={time}>
-                                        {time}
-                                      </option>
-                                    );
-                                  }
-                                  )}
+                                  })}
                                 </select>
                               </div>
                             </div>
@@ -713,16 +530,16 @@ const BookingDetail = () => {
                               </label>
                               <div className="picker">
                                 <DatePicker
-                                  minDate={minToDate()}
+                                  minDate={new Date(formData.from)}
                                   selected={formData.to}
                                   customInput={<CustomDatePickerInput />}
                                   onChange={handleToDateChange}
 
-                                // onChange={(date) => {
-                                //   setFormData({ ...formData, to: date });
-                                //   setError({ ...error, to: "" });
-                                // }}
-                                // onChange={(date) => onChange("to", date)}
+                                  // onChange={(date) => {
+                                  //   setFormData({ ...formData, to: date });
+                                  //   setError({ ...error, to: "" });
+                                  // }}
+                                  // onChange={(date) => onChange("to", date)}
                                 />
                                 <select
                                   className="form-control style-2"
@@ -731,7 +548,7 @@ const BookingDetail = () => {
                                     onChange("selectedToTime", e.target.value)
                                   }
                                 >
-                                  {/* {Array.from({ length: 24 }, (_, index) => {
+                                  {Array.from({ length: 24 }, (_, index) => {
                                     const hour = index % 12 || 12; // Get hour in 12-hour format
                                     const ampm = index < 12 ? "AM" : "PM"; // Determine AM or PM
                                     const formattedHour = ("0" + hour).slice(
@@ -743,12 +560,7 @@ const BookingDetail = () => {
                                         {formattedTime}
                                       </option>
                                     );
-                                  })} */}
-                                  {toHours.map((time, index) => (
-                                    <option key={index} value={time}>
-                                      {time}
-                                    </option>
-                                  ))}
+                                  })}
                                 </select>
                               </div>
                               {error.to && (
@@ -823,13 +635,7 @@ const BookingDetail = () => {
 
                           <div className="detailContinueButton mt-4">
                             <button type="submit" className="btn btn-primary  ">
-                              {btnLoading ? (
-                                <div className="loader">
-                                  <Loader />
-                                </div>
-                              ) : (
-                                "Book Now"
-                              )}
+                              Book Now
                             </button>
                           </div>
                         </div>
@@ -881,7 +687,7 @@ const BookingDetail = () => {
               <div className="container">
                 <div className="card">
                   <div className="row">
-                    {/* <h2>No data found!!</h2> */}
+                    <h2>No data found!!</h2>
                   </div>
                 </div>
               </div>

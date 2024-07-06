@@ -85,7 +85,7 @@ const formatDate = (dateString) => {
     const month = ('0' + (date.getMonth() + 1)).slice(-2);
     const year = date.getFullYear().toString().slice(-2);
     // return `${day}-${month}-${year}`;
-    return `${year}-${month}-${day}`;
+    return `${year}-${month}-${day} 00:00:00`;
 };
 
 const formatDateYear = (dateString) => {

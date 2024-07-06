@@ -9,8 +9,12 @@ import Loader from "../../components/Loader";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
 const ParkingSpots = () => {
+    const userRedux = useSelector((state) => {
+        return state.user.value;
+      });
     const [parkingSpots, setParkingSpots] = useState([]);
     const [trimmedText, setTrimmedText] = useState("");
     const [loading, setLoading] = useState(false);
@@ -27,7 +31,7 @@ const ParkingSpots = () => {
         setLoading(true);
         try {
             // await OwnerAxiosClient.get("/sanctum/csrf-cookie");
-            const response = await OwnerAxiosClient.get("/api/owner-parking-spots");
+            const response = await OwnerAxiosClient.get(`/api/owner-parking-spots/${userRedux.auth_owner_id}`);
             console.log("response owner data", response.data);
             if (response.data) {
                 setLoading(false);

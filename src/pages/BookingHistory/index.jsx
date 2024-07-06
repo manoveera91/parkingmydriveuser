@@ -277,7 +277,7 @@ const BookingHistory = () => {
                 >
                   <Tab
                     eventKey="recent"
-                    title={`Recent Booking (${bookingCount})`}
+                    title={`Upcoming Bookings (${bookingCount})`}
                   >
                     {recentBookingData
                       ?.sort(

@@ -433,12 +433,12 @@ const FindParkingSpot = () => {
                           apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
                           selectProps={{
                             value: apiValue,
-                            placeholder: 'Address',
                             apiValue: formData.destination,
                             onChange: (value) => {
                               setApiValue(value);
                               onChange("destination", value);
                             },
+                            noOptionsMessage: () => null
                           }}
                         />
 
@@ -542,7 +542,17 @@ const FindParkingSpot = () => {
                                   </option>
                                 );
                               })} */}
-                              {toHours.map((time, index) => (
+                              {toHours
+                              .filter((item) => {
+                                if ((formData.from == formData.to) && (item != formData.selectedFromTime)) {
+                                  return true
+                                } else if (formData.from != formData.to) {
+                                  return true
+                                } else {
+                                  return false
+                                }
+                              })
+                              .map((time, index) => (
                                 <option key={index} value={time}>
                                   {time}
                                 </option>

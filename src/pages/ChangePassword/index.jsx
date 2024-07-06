@@ -61,7 +61,7 @@ const ChangePassword = () => {
 
     setLoading(true);
     try {
-      await AxiosClient.get("/sanctum/csrf-cookie");
+      // await AxiosClient.get("/sanctum/csrf-cookie");
       const response = await AxiosClient.post("api/auth/change-password", {
         email: email,
         password: password,

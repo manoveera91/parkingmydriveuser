@@ -101,7 +101,8 @@ const Register = ({ onDataChange }) => {
               email: data.user.email,
               token: data.user_access_token,
               mobile: data.user.mobile,
-              spotLength: data.spot_length
+              spotLength: data.spot_length,
+              auth_owner_id: data.owner.id
             },
           })
         );

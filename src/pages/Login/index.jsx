@@ -78,7 +78,8 @@ const Login = ({ onDataChange }) => {
               email: data.user.email,
               token: data.user_access_token,
               mobile: data.user.mobile,
-              spotLength: data.spot_length
+              spotLength: data.spot_length,
+              auth_owner_id: data.owner.id
             },
           })
         );
@@ -187,7 +188,8 @@ const Login = ({ onDataChange }) => {
               email: data.user.email,
               token: data.accessToken,
               mobile: data.user.mobile,
-              spotLength: spotLength
+              spotLength: spotLength,
+              auth_owner_id: data.owner.id
             },
           })
         );

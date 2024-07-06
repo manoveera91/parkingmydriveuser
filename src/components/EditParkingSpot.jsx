@@ -83,6 +83,8 @@ const EditParkingSpot = () => {
         setLoading(false);
         toast.success("Parking spot updated successfully!");
         navigate("/my-parking-spot");
+      } else if (response.status === 409) {
+        toast.error("Parking spot already exists");
       }
     } catch (error) {
       console.error("Error updating parking spot:", error);

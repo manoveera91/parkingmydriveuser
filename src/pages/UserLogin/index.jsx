@@ -89,7 +89,8 @@ const UserLogin = () => {
                             email: data.user.email,
                             token: data.user_access_token,
                             mobile: data.user.mobile,
-                            spotLength: data.spot_length ? data.spot_length : 0
+                            spotLength: data.spot_length ? data.spot_length : 0,
+                            auth_owner_id: data.owner.id
                         },
                     })
                 );

@@ -7,7 +7,12 @@ import { useEffect, useState } from "react";
 import Loader from "../../components/Loader";
 import OwnerAxiosClient from "../../axios/OwnerAxiosClient";
 import { NavLink, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+
 const MyBookingSlots = () => {
+  const userRedux = useSelector((state) => {
+    return state.user.value;
+  });
   const [bookingCount, setBookingCount] = useState(0);
   const [cancelledBookingsCount, setCancelledBookingsCount] = useState(0);
   const [confirmedBookingsCount, setConfirmedBookingsCount] = useState(0);
@@ -74,7 +79,7 @@ const MyBookingSlots = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await OwnerAxiosClient.get("/api/owner-bookings");
+      const response = await OwnerAxiosClient.get(`/api/owner-bookings/${userRedux.auth_owner_id}`);
       console.log("Bookingresponse data", response.data);
       if (response.data) {
         setLoading(false);
@@ -124,7 +129,7 @@ const MyBookingSlots = () => {
               id="fill-tab-example"
               className="mb-3"
             >
-              <Tab eventKey="recent" title={`Recent Booking (${bookingCount})`}>
+              <Tab eventKey="recent" title={`Recent Bookings (${bookingCount})`}>
                 <div className="row">
                   <div className="col-lg-12 col-xs-12">
                     {loading ? (

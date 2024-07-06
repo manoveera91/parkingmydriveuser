@@ -352,6 +352,7 @@ const ReviewBooking = () => {
       total_hours: totalHours,
       location: "Location Name",
       status: "Pending",
+      email: userRedux.email
     };
     console.log("booking details", bookingData);
     setLoading(true);
