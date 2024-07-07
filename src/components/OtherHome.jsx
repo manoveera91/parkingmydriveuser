@@ -6,6 +6,9 @@ import Icon4 from "../assets/images/icon4.png";
 import Icon5 from "../assets/images/icon5.png";
 import Icon6 from "../assets/images/icon6.png";
 import Icon7 from "../assets/images/icon7.png";
+import HomeLast1 from "../assets/images/home-last1.png";
+import HomeLast2 from "../assets/images/home-last2.png";
+import HomeLast3 from "../assets/images/home-last3.png";
 import PopularParking from "./PopularParking";
 
 function OtherHome() {
@@ -16,46 +19,40 @@ function OtherHome() {
           <div className="parkmydriveBenefitsInner">
             <div className="row">
               <div className="col-lg-9 offset-lg-2">
-                <h2>Park in my drive Benefits</h2>
+                <h2>How it works</h2>
                 <p>
-                  Sed ut perspiciatis unde omnis iste natus error siaccusantium
-                  doloaudanum, totam rem aperiam eaque ipsa qeab illo inventore
-                  veritatisor sivtatem accusantium doloremque laudantium.
+                Our platform allows you to easily rent out your driveway to people who want to park their for the concert or sports event
                 </p>
 
                 <div className="row parkmydriveBenefitsList">
                   <div className="col-lg-6 col-md-6">
                     <img src={Icon1} />
-                    <h3>Stress Free Booking</h3>
+                    <h3>List your driveway</h3>
                     <p>
-                      Sed ut perspiciatis unde omnis iste natus error saee
-                      ntium.
+                    Sign up, list your driveway & tell us a little bit about when we can park there.
                     </p>
                   </div>
 
                   <div className="col-lg-6 col-md-6">
                     <img src={Icon3} />
-                    <h3>24 Hr Services</h3>
+                    <h3>Bookings made easy</h3>
                     <p>
-                      Sed ut perspiciatis unde omnis iste natus error saee
-                      ntium.
+                    Visitors can browse listings, select the perfect spot, and book in advance. No more last-minute parking stress!
                     </p>
                   </div>
 
                   <div className="col-lg-6 col-md-6">
                     <img src={Icon2} />
-                    <h3>Save Money & Time</h3>
+                    <h3>Extra Income</h3>
                     <p>
-                      Sed ut perspiciatis unde omnis iste natus error saee
-                      ntium.
+                    Start earning extra income effortlessly. Whether it's a one-time event or a regular source of revenue, your driveway has untapped potential.
                     </p>
                   </div>
                   <div className="col-lg-6 col-md-6">
                     <img src={Icon4} />
-                    <h3>Best Parking Management</h3>
+                    <h3>Innovative Technology</h3>
                     <p>
-                      Sed ut perspiciatis unde omnis iste natus error saee
-                      ntium.
+                    Our platform is driven by innovative technology that ensures a seamless parking experience for all our users.
                     </p>
                   </div>
                 </div>
@@ -72,11 +69,9 @@ function OtherHome() {
           <div className="rentOutInner">
             <div className="row">
               <div className="col-lg-10 offset-lg-1">
-                <h2>Rent Out Your Parking Space</h2>
+                <h2>Why Choose Us</h2>
                 <p>
-                  Sed ut perspiciatis unde omnis iste natus error siaccusantium
-                  doloaudanum, totam rem aperiam eaque ipsa qeab illo inventore
-                  veritatisor sivtatem accusantium doloremque laudantium.
+                We are a small company, trying to validate if this is a feasible idea. So we would really appreciate your help & support. That does not mean we compromise Safety, security & customer support. We need them to survive
                 </p>
 
                 <div className="row parkmydriveBenefitsList rentOutList">
@@ -85,12 +80,9 @@ function OtherHome() {
                       <figure className="image-box-img">
                         <img src={Icon5.png} />
                       </figure>
-                      <div className="image-box-content">
-                        <h3>Create Your Listing</h3>
-                        <p>
-                          Sed ut perspiciatis unde omnis iste natus error saee
-                          ntium.
-                        </p>
+                      <div className="image-box-content" style={{display: "flex", alignItems: "center", gap: "20px"}}>
+                      <img src={HomeLast1} alt="" />
+                        <h3>Safe & Secure</h3>
                       </div>
                     </div>
                   </div>
@@ -100,12 +92,10 @@ function OtherHome() {
                       <figure className="image-box-img">
                         <img src={Icon6.png} />
                       </figure>
-                      <div className="image-box-content">
-                        <h3>Manage Your Motorists</h3>
-                        <p>
-                          Sed ut perspiciatis unde omnis iste natus error saee
-                          ntium.
-                        </p>
+                      <div className="image-box-content" style={{display: "flex", alignItems: "center", gap: "20px"}}>
+                      <img src={HomeLast2} alt="" />
+                        <h3>Community First</h3>
+                  
                       </div>
                     </div>
                   </div>
@@ -115,12 +105,9 @@ function OtherHome() {
                       <figure className="image-box-img">
                         <img src={Icon7.png} />
                       </figure>
-                      <div className="image-box-content">
-                        <h3>Get Paid For Your Service</h3>
-                        <p>
-                          Sed ut perspiciatis unde omnis iste natus error saee
-                          ntium.
-                        </p>
+                      <div className="image-box-content" style={{display: "flex", alignItems: "center", gap: "20px"}}>
+                        <img src={HomeLast3} alt="" />
+                        <h3>Live Customer Support</h3>
                       </div>
                     </div>
                   </div>

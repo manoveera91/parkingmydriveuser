@@ -14,7 +14,7 @@ import { useSelector } from "react-redux";
 const ParkingSpots = () => {
     const userRedux = useSelector((state) => {
         return state.user.value;
-      });
+    });
     const [parkingSpots, setParkingSpots] = useState([]);
     const [trimmedText, setTrimmedText] = useState("");
     const [loading, setLoading] = useState(false);
@@ -52,36 +52,44 @@ const ParkingSpots = () => {
         navigate("/edit-parking-spot", { state: data });
     };
 
-    const handleDelete = async (id) => {
-        // Display confirmation dialog before deleting
-        confirmAlert({
-            title: "Confirm Delete",
-            message: "Are you sure you want to delete this parking spot?",
-            buttons: [
-                {
-                    label: "Yes",
-                    onClick: async () => {
-                        try {
-                            // Send a DELETE request to the server to delete the parking spot with the given ID
-                            await AxiosClient.delete(`/api/parking-spots/${id}`);
-                            // Remove the deleted parking spot from the local state
-                            setParkingSpots(
-                                parkingSpots.filter((parkingSpot) => parkingSpot.id !== id)
-                            );
-                            toast.success("Parking spot deleted successfully");
-                            console.log("Parking spot deleted successfully");
-                        } catch (error) {
-                            console.error("Error deleting parking spot:", error);
-                        }
+    const handleDelete = async (spot) => {
+        if (spot.isBooked === 0) {
+            // Display confirmation dialog before deleting
+            confirmAlert({
+                title: "Confirm Delete",
+                message: "Are you sure you want to delete this parking spot?",
+                buttons: [
+                    {
+                        label: "Yes",
+                        onClick: async () => {
+                            try {
+                                // Send a DELETE request to the server to delete the parking spot with the given ID
+                                await AxiosClient.delete(`/api/parking-spots/${spot.id}`);
+                                // Remove the deleted parking spot from the local state
+                                setParkingSpots(
+                                    parkingSpots.filter((parkingSpot) => parkingSpot.id !== spot.id)
+                                );
+                                toast.success("Parking spot deleted successfully");
+                                console.log("Parking spot deleted successfully");
+                            } catch (error) {
+                                console.error("Error deleting parking spot:", error);
+                            }
+                        },
                     },
-                },
-                {
-                    label: "No",
-                    onClick: () => { },
-                },
-            ],
-        });
+                    {
+                        label: "No",
+                        onClick: () => { },
+                    },
+                ],
+            });
+        } else {
+            toast.error("Spot already booked. You can't delete it. Please contact us for more.");
+        }
     };
+
+    const handleView = async (data) => {
+        navigate("/view-slot-bookings", { state: data });
+    }
 
     return (
         <>
@@ -201,18 +209,19 @@ const ParkingSpots = () => {
                                                                 <i
                                                                     className="fa fa-trash text-danger"
                                                                     style={{ cursor: "pointer" }}
-                                                                    onClick={() => handleDelete(parkingSpot.id)}
+                                                                    onClick={() => handleDelete(parkingSpot)}
                                                                 ></i>
-                                                                <NavLink
-                                                                    to="/my-slot-bookings"
+                                                                <span onClick={() => handleView(parkingSpot.id)}
+                                                                    // to=`/view-slot-bookings/${id}`
                                                                     style={{
                                                                         marginLeft: "13px",
                                                                         color: "#ff7902",
                                                                         fontSize: "14px",
+                                                                        cursor: "pointer"
                                                                     }}
                                                                 >
                                                                     View Booking
-                                                                </NavLink>
+                                                                </span>
                                                             </td>
                                                         </tr>
                                                     ))

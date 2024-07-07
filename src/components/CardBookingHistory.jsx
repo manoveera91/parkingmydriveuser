@@ -51,6 +51,16 @@ const CardBookingHistory = (data) => {
                 <span>Booked on:</span> {data.booked_on}
               </div>
 
+              <div className="time" style={{ display: 'flex' }}>
+                <span>Booked for:&nbsp;</span>
+                <div>
+                  <div>From: {data.fromTime}</div>
+                  <div>To:    {data.toTime}</div>
+                </div> 
+              
+                
+              </div>
+
               {status === "Cancelled" && data.cancelled_booking && (
                 <>
                   <div className="refund">

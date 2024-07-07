@@ -1748,3 +1748,7 @@ clear: both;
 .earningHeader .total{
 	
 }
+
+.w-40 {
+  width: 40px !important;
+}

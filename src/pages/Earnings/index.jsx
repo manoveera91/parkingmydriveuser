@@ -12,8 +12,12 @@ import {
   isYesterday,
 } from "../../utils/DateTime";
 import { NavLink } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Earnings = () => {
+  const userRedux = useSelector((state) => {
+    return state.user.value;
+  });
   const [bookingLists, setBookingLists] = useState([]);
   const [paymentLists, setPaymentLists] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -32,9 +36,10 @@ const Earnings = () => {
   }, []);
 
   const fetchData = async () => {
+ 
     setLoading(true);
     try {
-      const response = await OwnerAxiosClient.get("/api/owner-bookings");
+      const response = await OwnerAxiosClient.get(`/api/owner-bookings/${userRedux.auth_owner_id}`);
       console.log("Earnings response data", response.data);
       if (response.data) {
         setLoading(false);
@@ -58,7 +63,7 @@ const Earnings = () => {
   const fetchPaymentData = async () => {
     setLoading(true);
     try {
-      const response = await OwnerAxiosClient.get("/api/owner-payment-received");
+      const response = await OwnerAxiosClient.get(`/api/owner-payment-received/${userRedux.auth_owner_id}`);
       console.log("Earnings response data", response.data);
       if (response.data) {
         setLoading(false);

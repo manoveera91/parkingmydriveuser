@@ -217,7 +217,7 @@ const BookingHistory = () => {
           console.error("Error fetching data:", error);
         } finally {
           // setLoading(false);
-    
+
         }
         // setLoading(false);
         // fetchData(); // Assuming this function fetches updated data
@@ -291,6 +291,8 @@ const BookingHistory = () => {
                       // })
                       .map((item) => (
                         <CardBookingHistory
+                          fromTime={item.from_datetime}
+                          toTime={item.to_datetime}
                           key={item.id}
                           id={item.id}
                           img={item.parking_spots.photos}
@@ -312,7 +314,7 @@ const BookingHistory = () => {
                   </Tab>
                   <Tab
                     eventKey="completed"
-                    title={`Completed(${confirmedBookingsCount})`}
+                    title={`Completed (${confirmedBookingsCount})`}
                   >
                     {completedBookingData
                       // ?.filter((item) => {
@@ -322,6 +324,8 @@ const BookingHistory = () => {
                       // })
                       .map((item) => (
                         <CardBookingHistory
+                          fromTime={item.from_datetime}
+                          toTime={item.to_datetime}
                           key={item.id}
                           id={item.id}
                           time={item.time}
@@ -338,16 +342,16 @@ const BookingHistory = () => {
                         />
                       ))}
                     {completedBookingData
-                    // ?.filter((item) => {
-                    //   const expirationDate = new Date(item.from_datetime);
-                    //   const now = new Date();
-                    //   return item.status === "Confirmed" || (item.status != "Cancelled" && expirationDate <= now);
-                    // })
+                      // ?.filter((item) => {
+                      //   const expirationDate = new Date(item.from_datetime);
+                      //   const now = new Date();
+                      //   return item.status === "Confirmed" || (item.status != "Cancelled" && expirationDate <= now);
+                      // })
                       .length === 0 && <div>No records found</div>}
                   </Tab>
                   <Tab
                     eventKey="cancelled"
-                    title={`Cancelled(${cancelledBookingsCount})`}
+                    title={`Cancelled (${cancelledBookingsCount})`}
                   >
                     {cancelBookingData
                       // ?.filter((item) => {
@@ -355,6 +359,8 @@ const BookingHistory = () => {
                       // })
                       .map((item) => (
                         <CardBookingHistory
+                          fromTime={item.from_datetime}
+                          toTime={item.to_datetime}
                           key={item.id}
                           id={item.id}
                           time={item.time}
@@ -372,7 +378,7 @@ const BookingHistory = () => {
                         />
                       ))}
                     {cancelBookingData
-                    // ?.filter((item) => item.status === "Cancelled")
+                      // ?.filter((item) => item.status === "Cancelled")
                       .length === 0 && <div>No records found</div>}
                   </Tab>
                 </Tabs>

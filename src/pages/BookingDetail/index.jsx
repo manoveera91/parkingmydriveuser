@@ -18,8 +18,10 @@ import {
   useJsApiLoader,
 } from "@react-google-maps/api";
 import { searchSubmit } from "../../redux/searchSlice";
+import { useLocation } from "react-router-dom";
 
 const BookingDetail = () => {
+  const { state } = useLocation();
   const dispatch = useDispatch();
   const params = useParams();
   const navigate = useNavigate();
@@ -143,7 +145,16 @@ const BookingDetail = () => {
     let isoFormData;
     e.preventDefault();
     // Convert the from and to dates to ISO string format
-
+    console.log(state);
+    const formDataTo = new Date(formData.to);
+    const searchReduxTo = new Date(state.to_date_time);
+    if (formDataTo > searchReduxTo) {
+      setError({
+        ...error,
+        to: "Spot is not available for the date",
+      });
+      return; // Prevent form submission if validation fails
+    }
     if (formData.to < formData.from) {
       setError({
         ...error,

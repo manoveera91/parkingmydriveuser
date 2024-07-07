@@ -54,9 +54,9 @@ const ParkingList = ({ data }) => {
     setHoveredMarker(id);
   };
 
-  const handleClick = (id) => {
+  const handleClick = (data) => {
     // navigate(`/review-booking/${id}`);
-    navigate(`/booking-detail/${id}`);
+    navigate(`/booking-detail/${data.id}`, { state: data });
   };
 
   const handleActiveMarker = (marker) => {
@@ -152,7 +152,7 @@ const ParkingList = ({ data }) => {
                     <div className="mapButtons">
                       <button
                         className="btn btn-primary mt-2"
-                        onClick={() => handleClick(item.id)}
+                        onClick={() => handleClick(item)}
                       >
                         Book Now
                       </button>

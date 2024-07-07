@@ -224,7 +224,7 @@ const AddParkingSpots = () => {
                             selectProps={{
                               apiValue,
                               onChange: setApiValue,
-                              noOptionsMessage: () => null
+                              noOptionsMessage: () => 'Start typing to search for locations'
                             }}
                             {...register("google_map", { required: true })}
                           />

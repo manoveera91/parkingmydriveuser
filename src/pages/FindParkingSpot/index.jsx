@@ -438,7 +438,7 @@ const FindParkingSpot = () => {
                               setApiValue(value);
                               onChange("destination", value);
                             },
-                            noOptionsMessage: () => null
+                            noOptionsMessage: () => 'Start typing to search for locations'
                           }}
                         />
 

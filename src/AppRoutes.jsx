@@ -23,6 +23,7 @@ import ViewBookingSlot from "./components/ViewBookingSlot.jsx";
 import EditBookingSlot from "./components/EditBookingSlot.jsx";
 import ChangePassword from "./pages/ChangePassword/index.jsx";
 import ViewCancelledBooking from "./components/ViewCancelledBooking.jsx";
+import ViewlotBookings from "./pages/view-slot-bookings/index.jsx";
 
 const AuthenticatedRoute = ({ children }) => {
   // const auth = useAuthContext();
@@ -181,6 +182,14 @@ const AppRoutes = () => {
         element={
           <AuthenticatedRoute>
             <MyBookingSlots />
+          </AuthenticatedRoute>
+        }
+      />
+            <Route
+        path="/view-slot-bookings"
+        element={
+          <AuthenticatedRoute>
+            <ViewlotBookings />
           </AuthenticatedRoute>
         }
       />

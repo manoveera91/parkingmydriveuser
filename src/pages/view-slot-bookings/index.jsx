@@ -6,10 +6,15 @@ import Header from "../../components/Header";
 import { useEffect, useState } from "react";
 import Loader from "../../components/Loader";
 import OwnerAxiosClient from "../../axios/OwnerAxiosClient";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-const MyBookingSlots = () => {
+const ViewlotBookings = () => {
+    const { state } = useLocation();
+    const [data, setData] = useState(null);
+    useEffect(() => {
+      setData(state);
+    }, [state]);
   const userRedux = useSelector((state) => {
     return state.user.value;
   });
@@ -51,14 +56,14 @@ const MyBookingSlots = () => {
       bookingLists.filter((item) => {
         const expirationDate = new Date(item.from_datetime);
         const now = new Date();
-        return item.status === "Booked" && expirationDate >= now;
+        return item.status === "Booked" && expirationDate >= now && data == item.parking_spot_id;
       }).length
     );
 
     // Cancelled
     setCancelledBookingsCount(
       bookingLists.filter((item) => {
-        return item.status === "Cancelled";
+        return item.status === "Cancelled" && data == item.parking_spot_id;
       }).length
     );
 
@@ -67,7 +72,7 @@ const MyBookingSlots = () => {
       bookingLists.filter((item) => {
         const expirationDate = new Date(item.from_datetime);
         const now = new Date();
-        return item.status != "Cancelled" && expirationDate < now;
+        return item.status != "Cancelled" && expirationDate < now && data == item.parking_spot_id;
       }).length
     );
   }, [bookingLists]);
@@ -120,7 +125,7 @@ const MyBookingSlots = () => {
           My Earnings
         </NavLink>
       </div> */}
-      <BreadCrumbs title="Driveway Bookings" />
+      <BreadCrumbs title="View Bookings"/>
       <div className="loginOuter afterownerLogin">
         <div className="container">
           <div className="dashboardList">
@@ -168,7 +173,7 @@ const MyBookingSlots = () => {
                               ?.filter((item) => {
                                 const expirationDate = new Date(item.from_datetime);
                                 const now = new Date();
-                                return item.status === "Booked" && expirationDate >= now;
+                                return item.status === "Booked" && expirationDate >= now && data == item.parking_spot_id;
                               })
                               .map((booking, index) => (
                                 <tr key={booking.id}>
@@ -265,7 +270,7 @@ const MyBookingSlots = () => {
                                 console.log("item", item);
                                 const expirationDate = new Date(item.from_datetime);
                                 const now = new Date();
-                                return item.status != "Cancelled" && expirationDate < now;
+                                return item.status != "Cancelled" && expirationDate < now && data == item.parking_spot_id;
                               })
                               .map((booking, index) => (
                                 <tr key={booking.id}>
@@ -339,7 +344,7 @@ const MyBookingSlots = () => {
                           <tbody>
                             {bookingLists
                               ?.filter((item) => {
-                                return item.status === "Cancelled";
+                                return item.status === "Cancelled" && data == item.parking_spot_id;
                               })
                               .map((booking, index) => (
                                 <tr key={booking.id}>
@@ -398,4 +403,4 @@ const MyBookingSlots = () => {
   );
 };
 
-export default MyBookingSlots;
+export default ViewlotBookings;

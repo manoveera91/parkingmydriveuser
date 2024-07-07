@@ -57,7 +57,8 @@ const ParkingPlace = () => {
     <>
       <div className="slider-container">
         <div className="container searchOuter">
-          <h2>Parking Places</h2>
+          <h2>Who we are</h2>
+          <p style={{textAlign:"center"}}>Park in My Driveway is the innovative idea that's revolutionizing the way people park. Imagine a visitor to a concert booking your driveway ahead of time, parking with ease, and leaving without getting stuck in traffic. The convenience and seamless customer experience alone is worth the cost of parking.</p>
           {loading ? (
             <div
               style={{
@@ -94,6 +95,9 @@ const ParkingPlace = () => {
                           <a>{item.slot_name}</a>
                         </h3>
                         {/* <div className="location">1.5 km away, California</div> */}
+                        <div className="location">
+                          {item.google_map}
+                        </div>
                         <div className="time">
                           Available Time Slot : {item.available_time}
                         </div>

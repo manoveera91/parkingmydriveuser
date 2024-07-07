@@ -3,8 +3,15 @@ import Banner from "../assets/images/banner.jpg";
 import Banner2 from "../assets/images/banner2.jpg";
 import Banner3 from "../assets/images/banner3.jpg";
 import { useNavigate } from "react-router-dom";
+import BannerIconOne from "../assets/images/banner-icon.png";
+import BannerIconTwo from "../assets/images/banner-icon1.png";
+import BannerIconThree from "../assets/images/banner-icon2.png";
+import { useSelector } from "react-redux";
 
 function Slider() {
+  const userRedux = useSelector((state) => {
+    return state.user.value;
+  });
   const images = [
     Banner, Banner2, Banner3
   ];
@@ -90,6 +97,11 @@ function Slider() {
   const navigate = useNavigate();
   const goToFind = () => {
     navigate("/find-parking-spot");
+    localStorage.removeItem('redirect');
+  };
+  const goToList = () => {
+    !userRedux.isLoggedIn ? localStorage.setItem('redirect', '/add-parking-spots') : ''
+    navigate(userRedux.isLoggedIn ? '/add-parking-spots' : '/userlogin');
   };
   const goToPrev =() => {
     setFade(false);
@@ -133,20 +145,49 @@ function Slider() {
         <img src={images[currentIndex]} alt="parking" className={`'d-block w-100 carasoul-image-container' ${fade ? 'c-fade-in' : 'c-fade-out'}`} />
           <div className="carousel-overlay"></div>
 
-          <div className="carousel-caption text-start">
+          <div className="carousel-caption text-start w-40" style={{top: "-16px"}}>
             <h1 data-bs-animation="animate__animated animate__zoomInRight">
-              Find Amazing Parking Space Near You
+            Driveway
             </h1>
-            <p data-bs-animation="animate__animated animate__fadeInLeft">
-              Uncover convenient spots for hassle-free parking nearby.
+            <p>
+            <ul style={{paddingLeft: "22px"}}>
+              <li style={{display: "list-item", listStyle: "circle"}}>Do you Live near a concert venue, stadium or an area with limited parking ?</li>
+              <li style={{display: "list-item", listStyle: "circle"}}>Rent out your driveway to people who want to park for upto $20/day</li>
+              <li style={{display: "list-item", listStyle: "circle"}}>We want to be the AirBnb for Parking</li>
+            </ul>
             </p>
+         
+            <p data-bs-animation="animate__animated animate__fadeInLeft" style={{display: "flex"}}>
+              <div style={{display: "flex", alignItems: "center", gap: "12px"}}>
+              <img src={BannerIconOne} alt="" />
+              <span>Tech Driven Parking</span>
+              </div>
+              <div style={{display: "flex", alignItems: "center", gap: "12px"}}>
+              <img src={BannerIconTwo} alt="" />
+              <span>Driven By Innovation</span>
+              </div>
+              <div style={{display: "flex", alignItems: "center", gap: "12px"}}>
+              <img src={BannerIconThree} alt="" />
+              <span>Rent Out Your Driveway</span>
+              </div>
+            </p>
+            <div style={{display: "flex", gap: "8px"}}>
+            <a
+              onClick={() => goToList()}
+              className="btn btn-primary"
+              data-bs-animation="animate__animated animate__fadeInLeft"
+            >
+              List Your Driveway
+            </a>
             <a
               onClick={() => goToFind()}
               className="btn btn-primary"
               data-bs-animation="animate__animated animate__fadeInLeft"
             >
-              Show Parking Spaces
+              Find a spot to park
             </a>
+            </div>
+     
           </div>
         </div>
 
