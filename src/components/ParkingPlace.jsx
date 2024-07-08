@@ -6,8 +6,11 @@ import AxiosClient from "../axios/AxiosClient";
 import Slider from "react-slick";
 import Loader from "./Loader";
 import { useNavigate } from "react-router-dom";
+import { searchSubmit } from "../redux/searchSlice";
+import { useDispatch } from "react-redux";
 
 const ParkingPlace = () => {
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [parkingListData, setParkingListData] = useState([]);
 
@@ -37,18 +40,72 @@ const ParkingPlace = () => {
       setLoading(false); // Set loading state to false when fetching is done
     }
   };
-
+  console.log(window.innerWidth);
   const settings = {
     dots: false,
     infinite: true,
-    slidesToShow: 3,
+    slidesToShow: window.innerWidth < 768 ? 1 : 3,
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 2000,
   };
+  const convertDateTimeFormat = (date) => {
+    const currentDate = new Date();
 
-  const handleClick = (id) => {
-    navigate(`/booking-detail/${id}`);
+    // Extract the year, month, and day
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    // Convert to string in the format YYYY-MM-DD
+    const currentDateString = `${year}-${month}-${day}`;
+    return currentDateString;
+  }
+  const generateFutureTimeList = (date, type) => {
+    const times = [];
+    const currentDateFormat = convertDateTimeFormat(new Date());
+    const dateFormat = convertDateTimeFormat(date);
+    // Round to the next hour
+    const now = new Date(date);
+    if ((currentDateFormat == dateFormat) && type == 'from' ) {
+      now.setHours(now.getHours() + 1);
+    }
+    now.setMinutes(0, 0, 0);
+    const currentHour = now.getHours();
+
+    for (let i = currentHour; i < 24; i++) {
+      let hours = i;
+      const minutes = '00';
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+
+      hours = hours % 12;
+      hours = hours ? hours : 12; // the hour '0' should be '12'
+      const hoursStr = hours < 10 ? '0' + hours : hours;
+
+      const timeStr = hoursStr + ':' + minutes + ' ' + ampm;
+      times.push(timeStr);
+    }
+    return times;
+  };
+
+  const handleClick = (data) => {
+    const currentDate = new Date();
+    const fromDate = new Date(currentDate);
+    const toDate = new Date(currentDate);
+    fromDate.setHours(fromDate.getHours() + 1);
+    toDate.setHours(toDate.getHours() + 2);
+    const fromTime = generateFutureTimeList(new Date(), 'from') 
+debugger
+    dispatch(
+      searchSubmit({
+        data: {
+          from: fromDate,
+          to: toDate,
+          selectedFromTime: fromTime[0],
+          selectedToTime: fromTime[1]
+        },
+      }))
+    navigate(`/booking-detail/${data.id}`, { state: data });
     // navigate(`/review-booking/${id}`);
     // navigate(`/find-parking-spot`);
   };
@@ -112,7 +169,7 @@ const ParkingPlace = () => {
                             Book Now
                           </a> */}
                           <a
-                            onClick={() => handleClick(item.id)}
+                            onClick={() => handleClick(item)}
                             className="btn btn-outline-primary"
                           >
                             Book Now

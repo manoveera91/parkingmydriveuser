@@ -51,8 +51,8 @@ const BookingDetail = () => {
     // no_of_vehicle: "1",
     // hours: "1",
     vehicle_type: "SUV",
-    selectedFromTime: "12:00 AM",
-    selectedToTime: "01:00 AM",
+    selectedFromTime: "01:00 AM",
+    selectedToTime: "02:00 AM",
   });
 
   const [error, setError] = useState({

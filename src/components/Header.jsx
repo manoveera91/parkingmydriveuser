@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { saveUser } from "../redux/userSlice";
 import { Popover, ArrowContainer } from 'react-tiny-popover'
 import { toast } from "react-toastify";
+import { searchSubmit } from "../redux/searchSlice";
 const Header = forwardRef((props, ref) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -52,6 +53,20 @@ const Header = forwardRef((props, ref) => {
   //     document.removeEventListener('click', handleClickOutside);
   //   };
   // }, [isPopoverOpen]);
+  const resetDispatch = async () => {
+    dispatch(
+      searchSubmit({
+        data: {
+          from: '',
+          to: '',
+          selectedFromTime: '',
+          selecteToTime: '',
+          lat: '',
+          lng: '',
+        },
+      })
+    );
+  }
 
   const handleLogout = async () => {
     const res = await AxiosClient.post("/api/auth/logout");
@@ -113,7 +128,7 @@ const Header = forwardRef((props, ref) => {
                 // activeClassName="active"
                 >
                   <a
-                    onClick={() => { localStorage.removeItem('redirect') }}
+                    onClick={() => { resetDispatch(); localStorage.removeItem('redirect') }}
                     className="nav-link anchor-link">Home</a>
                 </NavLink>
 
