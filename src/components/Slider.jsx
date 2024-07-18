@@ -147,7 +147,7 @@ function Slider() {
 
           <div className="carousel-caption text-start w-40" style={{top: "-16px"}}>
             <h1 data-bs-animation="animate__animated animate__zoomInRight">
-            Driveway
+            Park In My Driveway
             </h1>
             <p>
             <ul style={{paddingLeft: "22px"}}>
